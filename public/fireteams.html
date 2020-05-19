@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+        <link rel="stylesheet" href="css/styles.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+        <title>Abysmal Light Fireteams</title>
+    
+    </head>
+
+    <!-- Hide HTML elements with hidden class -->
+  <style>
+    .hidden{
+      display: none !important;
+    }
+
+    textarea {
+      resize: none;
+    }
+  </style>
+
+<body class="white">
+    <h4>A.L. Fireteams ................
+      ..........................................
+    </h4>
+
+    <section class="content">
+      <header>
+        <nav>
+        </nav>
+      </header>
+
+      <div class="container" style="z-index: 1; top: 0px; position: fixed; margin-top: 40px;">
+        <h5 style ="right: 0px; background-color:white; width: 360vw;">Abysmal Highlights</h5>
+        <div>
+          <iframe width = 360vw height = 160vw class = "video-youtube hidden"
+          src="" frameborder="0" allow="accelerometer; 
+          autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+
+          <iframe width = 360vw height = 160vw class = "video-mixer hidden" i18n-title="channel#ShareDialog:playerEmbedFrame|
+          Embed player Frame copied from share dialog" allowfullscreen="true" 
+          src=""></iframe>
+
+          <iframe width = 360vw height = 160vw class = "video-twitch hidden" src="" frameborder="0" allowfullscreen="true" 
+          scrolling="no"></iframe>
+        </div>
+        </div>
+
+        <!-- Activity name -->
+        <div class="container hidden" style="margin-top: 40px;">
+            <h4 id = "activity-name">Nombre de actividad</h4>
+            <ul class="collapsible z-depth-0 guides" style="border: none;">
+              <li>
+                <div id="p1" class="collapsible-header grey lighten-4"></div>
+              </li>
+              <li>
+                <div id="p2" class="collapsible-header grey lighten-4"></div>
+              </li>
+              <li>
+                <div id="p3" class="collapsible-header grey lighten-4"></div>
+              </li>
+              <li>
+                <div id="p4" class="collapsible-header grey lighten-4"></div>
+              </li>
+              <li>
+                <div id="p5" class="collapsible-header grey lighten-4"></div>
+              </li>
+              <li>
+                <div id="p6" class="collapsible-header grey lighten-4"></div>
+              </li>
+            </ul>
+            <h6 id = "fireteam-details">Escuadra llena: Requiere mic: Plataforma:</h6>
+        </div>
+
+        <div class="container hidden" style="margin-top: 40px;">
+            <h6>Soy:</h6>
+            <select id = "class-list" class="browser-default">
+                <option value="Titán">Titán</option>
+                <option value="Cazador">Cazador</option>
+                <option value="Hechicero">Hechicero</option>
+            </select>
+
+            <h6>Mi nivel es:</h6>
+            <input id="level" type="number" class="browser-default" value="750" min="750">
+        </div>
+
+        <div class="container hidden" style="margin-top: 40px;">
+            <button class="delete-fireteam hidden">Eliminar escuadra</button>
+            <button class="join-fireteam hidden">Unirse a escuadra</button>
+            <button class="leave-fireteam hidden">Abandonar escuadra</button>
+            <h6 class="camp-fireteam hidden">Lo sentimos, esta escuadra solo está disponible para miembros del Campamento Crisol.</h6>
+            <h6 class="academy-fireteam hidden">Lo sentimos, esta escuadra solo está disponible para miembros de la Academia de Incursiones.</h6>
+            <h6 class="cannot-join hidden">No puedes unirte a la escuadra, es posible que ya formes parte de ella o esté llena.</h6>
+            <h6 class="cannot-delete hidden">No se pudo borrar la escuadra, es posible que haya ocurrido un error o no estés autorizado(a).</h6>
+            <h6 class="cannot-leave hidden">No puedes abandonar esta escuadra porque no formas parte de ella.</h6>
+            <h6 class="loading hidden">Cargando...</h6>
+        </div>
+
+        <header class="navbar">
+          <nav>
+            <a href="index.html">Regresar al inicio</a></div>
+            <a class="sign-out">Cerrar sesión</a>
+          </nav>
+        </header>
+    </section>
+
+    <h4>Abysmal Light Fireteams</h4>
+
+    <!-- update the version number as needed -->
+    <script src="/__/firebase/7.12.0/firebase-app.js"></script>
+    <!-- include only the Firebase features as you need -->
+    <script src="/__/firebase/7.12.0/firebase-auth.js"></script>
+    <script src="/__/firebase/7.12.0/firebase-firestore.js"></script>
+    <script src="/__/firebase/7.12.0/firebase-functions.js"></script>
+    <!-- initialize the SDK after all desired features are loaded -->
+    <script src="/__/firebase/init.js"></script>
+
+    <!-- initialize firebase -->
+    <script>
+    auth = firebase.auth();
+    db = firebase.firestore();
+
+    var url = new URL(window.location.href);
+    var fireteamid = url.searchParams.get('fireteamid');
+    </script>
+
+    <!-- Compiled and minified JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+    <script src="scripts/fireteams.js"></script>
+</body>
+</html>

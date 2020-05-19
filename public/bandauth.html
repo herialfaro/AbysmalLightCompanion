@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+        <link rel="stylesheet" href="css/styles.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+        <title>Band Authentication</title>
+    
+    </head>
+
+    <!-- Hide HTML elements with hidden class -->
+  <style>
+    .hidden{
+      display: none !important;
+    }
+
+    textarea {
+      resize: none;
+    }
+  </style>
+
+<body class="white">
+    <h4>Band Authentication</h4>
+
+    <!-- band unlink modal -->
+  <div id="modal-band" class="modal">
+    <div class="modal-content">
+      <h5>¿Estás seguro(a) de querer desvincular tu cuenta de BAND?</h5><br/>
+        <h5>Perderás la habilidad de publicar escuadras en BAND de manera automática y posiblemente otros beneficios.
+        </h5><br/>
+        <button class="band-confirmation-yes">Sí, estoy seguro(a)</button>
+        <button class="band-confirmation-no">No, volver</button>
+        <h6 class="loading-band-confirmation hidden">Cargando...</h6>
+    </div>
+  </div>
+
+    <section class="content">
+      <header>
+        <nav>
+        </nav>
+      </header>
+
+        <ul class="band-authorized hidden">
+            <li>
+              <div class="container" style="margin-top: 40px;">
+                <h4>Perfil de BAND</h4>
+                <h5 id = "band-name"></h5>
+                <image id = "band-pic" src="" height = "91px" width = "91px"></image>
+                <h6 class = "band-member-true hidden">Tu cuenta de BAND está correctamente vinculada al acompañante.</h6>
+                <h6 class = "band-member-false hidden">Encontramos tu cuenta, pero no está asociada al acompañante,
+                    por favor revísalo en la configuración de tu cuenta de BAND.</h6>
+                <a href="#modal-band" class="modal-trigger">Desvincular</a>
+              </div>
+            </li>
+        </ul>
+
+        <ul class="band-unauthorized hidden">
+          <li>
+            <div class="container" style="margin-top: 40px;">
+              <h4>Vincula tu cuenta</h4>
+              <h6 class = "band-member-notfound">Vincular tu cuenta de BAND
+              te permitirá hacer publicaciones automáticas en Abysmal Light LFG,
+              así como tener acceso a otros beneficios exclusivos.
+              </h6>
+              <h6 class = "band-member-error hidden">Hubo un problema al intnetar
+                recuperar tu cuenta de BAND. Por favor inténtalo más tarde,
+                si el problema persiste, contacta a un administrador.
+                </h6>
+              <button id="band-link">Vincular</button>
+            </div>
+          </li>
+        </ul>
+       
+        <header class="navbar">
+          <nav>
+            <a href="index.html">Regresar al inicio</a></div>
+            <a class="sign-out">Cerrar sesión</a>
+          </nav>
+        </header>
+    </section>
+
+    <!-- update the version number as needed -->
+    <script src="/__/firebase/7.12.0/firebase-app.js"></script>
+    <!-- include only the Firebase features as you need -->
+    <script src="/__/firebase/7.12.0/firebase-auth.js"></script>
+    <script src="/__/firebase/7.12.0/firebase-firestore.js"></script>
+    <script src="/__/firebase/7.12.0/firebase-functions.js"></script>
+    <!-- initialize the SDK after all desired features are loaded -->
+    <script src="/__/firebase/init.js"></script>
+
+    <!-- initialize firebase -->
+    <script>
+    auth = firebase.auth();
+    db = firebase.firestore();
+
+    var url = new URL(window.location.href);
+    var auth_code = url.searchParams.get('code');
+    </script>
+
+    <!-- Compiled and minified JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+    <script src="scripts/bandauth.js"></script>
+</body>
+</html>
