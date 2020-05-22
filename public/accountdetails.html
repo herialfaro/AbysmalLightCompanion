@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+        <link rel="stylesheet" href="css/styles.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+        <title>Detalles de la Cuenta</title>
+    
+    </head>
+
+    <!-- Hide HTML elements with hidden class -->
+  <style>
+    .hidden{
+      display: none !important;
+    }
+
+    textarea {
+      resize: none;
+    }
+  </style>
+
+<body class="white">
+    <h4>Detalles de la Cuenta</h4>
+
+    <section class="content">
+      <header>
+        <nav>
+        </nav>
+      </header>
+
+        <ul>
+          <li>
+            <div class="container" style="margin-top: 40px;">
+                <h5 id = "account-bungie-name">Nombre en Bungie.net: </h5><br/>
+                <h5 id = "account-coins">Tus Abysmal Coins: </h5><br/>
+                <h5 id = "account-clan-points">Tus puntos de clan: </h5><br/>
+                <h5 id = "account-rank">Tu rango de clan: </h5><br/>
+                <button class = "daily-messages-true hidden">Dejar de recibir mensajes diarios</button>
+                <button class = "daily-messages-false hidden">Recibir mensajes diarios</button>
+                <!-- Update in a future version-->
+                <button class = "changepassword hidden">Solicitar cambio de contraseña</button>
+                <h6 class = "save-loading hidden">Cargando...</h6>
+                <h6 class = "save-success hidden">Cambios guardados exitosamente. Puedes refrescar la página
+                  o regresar al inicio.
+                </h6>
+                <h6 class = "save-failure hidden">Hubo un error, inténtalo de nuevo más tarde.</h6>
+                <h6 class = "warning1 hidden">Si decides dejar de recibir mensajes diarios, tampoco
+                  recibirás Abysmal Coins diarias. Puedes cambiar esta configuración cada vez
+                  que quieras.</h6>
+                <h6 class = "warning2 hidden">Actualmente no estás recibiendo Abysmal Coins
+                  ni mensajes diarios, haz click en Recibir mensajes diarios para continuar
+                  recibiendo monedas cada día.</h6>
+            </div>
+          </li>
+        </ul>
+       
+        <header class="navbar">
+          <nav>
+            <a href="index.html">Regresar al inicio</a></div>
+            <a class="sign-out">Cerrar sesión</a>
+          </nav>
+        </header>
+    </section>
+
+    <!-- update the version number as needed -->
+    <script src="/__/firebase/7.12.0/firebase-app.js"></script>
+    <!-- include only the Firebase features as you need -->
+    <script src="/__/firebase/7.12.0/firebase-auth.js"></script>
+    <script src="/__/firebase/7.12.0/firebase-firestore.js"></script>
+    <script src="/__/firebase/7.12.0/firebase-functions.js"></script>
+    <!-- initialize the SDK after all desired features are loaded -->
+    <script src="/__/firebase/init.js"></script>
+
+    <!-- initialize firebase -->
+    <script>
+    auth = firebase.auth();
+    db = firebase.firestore();
+    </script>
+
+    <!-- Compiled and minified JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+    <script src="scripts/accountdetails.js"></script>
+</body>
+</html>

@@ -46,7 +46,7 @@ auth.onAuthStateChanged(user => {
                   }
                   else if(type == 0)
                   {
-                    ftyoutubePlayer.src = `https://www.youtube.com/embed/${videoSnapshot.data().code}`;
+                    ftyoutubePlayer.src = `https://www.youtube.com/embed/${videoSnapshot.data().code}?autoplay=1`;
                     ftyoutubePlayer.classList.remove('hidden');
                   }
                 }
@@ -177,6 +177,7 @@ auth.onAuthStateChanged(user => {
 deleteButton.addEventListener('click', (e) => {
     e.preventDefault();
     deleteButton.classList.add('hidden');
+    deleteError.classList.add('hidden');
     loading.classList.remove('hidden');
     db.collection('fireteam').doc(fireteamid).get().then((snapshot) => {
     var new_deletion = {
@@ -189,7 +190,8 @@ deleteButton.addEventListener('click', (e) => {
       window.location.replace('index.html');
     })
     .catch(error => {deleteError.classList.remove('hidden')
-    loading.classList.add('hidden')});
+    loading.classList.add('hidden')
+    deleteButton.classList.remove('hidden')});
 })
 });
 
@@ -197,6 +199,7 @@ deleteButton.addEventListener('click', (e) => {
 leaveButton.addEventListener('click', (e) => {
     e.preventDefault();
     leaveButton.classList.add('hidden');
+    leaveError.classList.add('hidden');
     loading.classList.remove('hidden');
     var fireteamdata;
     var playerexists;
@@ -232,20 +235,25 @@ leaveButton.addEventListener('click', (e) => {
                 });
               })
               .catch(error => {leaveError.classList.remove('hidden')
-              loading.classList.add('hidden')});
+              loading.classList.add('hidden')
+              leaveButton.classList.remove('hidden')});
         }
         else
         {
             leaveError.classList.remove('hidden');
             loading.classList.add('hidden');
+            leaveButton.classList.remove('hidden');
         }
-    });
+    }).catch(error => {leaveError.classList.remove('hidden')
+    loading.classList.add('hidden')
+    leaveButton.classList.remove('hidden')});
 });
 
 //ADD PLAYER TO FIRETEAM
 joinButton.addEventListener('click', (e) => {
     e.preventDefault();
     joinButton.classList.add('hidden');
+    joinError.classList.add('hidden');
     loading.classList.remove('hidden');
     var fireteamdata;
     var playerexists;
@@ -276,7 +284,7 @@ joinButton.addEventListener('click', (e) => {
                         numofplayers = doc.data().maxplayers;
                     }
                 });
-            return db.collection('user').doc(auth.currentUser.uid).get()
+            return db.collection('user').doc(auth.currentUser.uid).get();
     }).then((userSnapshot) => {
         if(checkextras)
                 {
@@ -294,6 +302,7 @@ joinButton.addEventListener('click', (e) => {
                         {
                             joinError.classList.remove('hidden');
                             loading.classList.add('hidden');
+                            joinButton.classList.remove('hidden');
                         }
                         else
                         {
@@ -321,15 +330,20 @@ joinButton.addEventListener('click', (e) => {
                             joinFireteam(new_player)
                             .then(() => {
                                 window.location.reload(true)
-                            });
+                            }).catch(error => {joinError.classList.remove('hidden')
+                            loading.classList.add('hidden')
+                            joinButton.classList.remove('hidden')});
                         }
                     }
                     else
                     {
                         joinError.classList.remove('hidden');
                         loading.classList.add('hidden');
+                        joinButton.classList.remove('hidden');
                     }
-                    });
+                    }).catch(error => {joinError.classList.remove('hidden')
+                    loading.classList.add('hidden')
+                    joinButton.classList.remove('hidden')});
                 }
                 else
                 {
@@ -339,6 +353,7 @@ joinButton.addEventListener('click', (e) => {
                         {
                             joinError.classList.remove('hidden');
                             loading.classList.add('hidden');
+                            joinButton.classList.remove('hidden');
                         }
                         else
                         {
@@ -365,16 +380,20 @@ joinButton.addEventListener('click', (e) => {
                             const joinFireteam  = firebase.functions().httpsCallable('joinFireteam');
                             joinFireteam(new_player).then(() => {
                                 window.location.reload(true)
-                            });
+                            }).catch(error => {joinError.classList.remove('hidden')
+                            loading.classList.add('hidden')});
                         }
                     }
                     else
                     {
                         joinError.classList.remove('hidden');
                         loading.classList.add('hidden');
+                        joinButton.classList.remove('hidden');
                     }
                 }
-    });
+    }).catch(error => {joinError.classList.remove('hidden')
+    loading.classList.add('hidden')
+    joinButton.classList.remove('hidden')});
 });
 
 signOut.addEventListener('click', () => {

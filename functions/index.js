@@ -115,6 +115,10 @@ exports.newUserSignUp = functions.auth.user().onCreate(user => {
     {
         throw new functions.https.HttpsError('unauthenticated','only authenticated users can add requests');
     }
+    if((data.ulevel > 1050) || (data.ulevel < 750))
+    {
+        throw new functions.https.HttpsError('invalid level','level is beyond acceptable parameters');
+    }
     const snapshot = await admin.firestore().collection('fireteam').doc(data.ftid).collection('players').doc().set(
         {
             character: data.uclass,
@@ -394,6 +398,22 @@ exports.newUserSignUp = functions.auth.user().onCreate(user => {
             reference: giveDailyItems,
             message: giveDailyMessage,
             coins: abysmalcoinsgift
+        }
+    });
+
+
+    exports.updateRecieveDaily = functions.https.onCall(async(data,context) => {
+        if(!context.auth)
+        {
+            throw new functions.https.HttpsError('unauthenticated','only authenticated users can add requests');
+        }
+        const snapshot = await admin.firestore().collection('user').doc(context.auth.uid).update(
+            {
+                dailymessage: data.settings
+            }
+        );
+        return {
+            reference: snapshot.id
         }
     });
 

@@ -21,11 +21,8 @@ const namesReport = document.querySelector('#name-report');
 const namesReportButton = document.querySelector('.name-report-button');
 const namesReportLoading = document.querySelector('.loading-report');
 
-const youtubePlayer = document.querySelector('.video-youtube');
-const mixerPlayer = document.querySelector('.video-mixer');
-const twitchPlayer = document.querySelector('.video-twitch');
-
 const bandAuthButton = document.querySelector('#gotobandauth');
+const configurationButton = document.querySelector('#gotoaccountdetails');
 
 const streamRentStatus = document.querySelector('.stream-notenabled');
 const streamOccupied = document.querySelector('.stream-occupied');
@@ -46,6 +43,10 @@ authSwitchLinks.forEach(link => {
 
 bandAuthButton.addEventListener('click', (e) => {
   window.location.replace('bandauth.html');
+});
+
+configurationButton.addEventListener('click', (e) => {
+  window.location.replace('accountdetails.html');
 });
 
 // google signin
@@ -295,7 +296,7 @@ auth.onAuthStateChanged(user => {
                 }
                 else if(type == 0)
                 {
-                  youtubePlayer.src = `https://www.youtube.com/embed/${videoSnapshot.data().code}`;
+                  youtubePlayer.src = `https://www.youtube.com/embed/${videoSnapshot.data().code}?autoplay=1`;
                   youtubePlayer.classList.remove('hidden');
                 }
               }
@@ -309,7 +310,7 @@ auth.onAuthStateChanged(user => {
           companionModules.classList.remove('hidden');
 
           //LOAD FIRETEAMS LIST
-   db.collection('fireteam').orderBy('datecreated').get().then((snapshot) => {
+   db.collection('fireteam').where('programcode','==',0).orderBy('datecreated').get().then((snapshot) => {
      var temp_array = [];
      var doc_array = [];
     snapshot.docs.forEach(doc => {

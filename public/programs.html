@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+        <link rel="stylesheet" href="css/styles.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+        <title>Programs</title>
+    
+    </head>
+
+    <!-- Hide HTML elements with hidden class -->
+  <style>
+    .hidden{
+      display: none !important;
+    }
+
+    textarea {
+      resize: none;
+    }
+  </style>
+
+<body class="white">
+    <h4 id = "program_name"></h4>
+    <h4>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    </h4>
+
+    <section class="content">
+      <header>
+        <nav>
+        </nav>
+      </header>
+
+        <ul class="program_content hidden">
+          <div class="container" style="z-index: 1; top: 0px; position: fixed; margin-top: 40px;">
+            <h5 style ="right: 0px; background-color:white; width: 360vw;">Abysmal Highlights</h5>
+            <div>
+              <iframe width = 360vw height = 160vw class = "video-youtube hidden"
+              src="" frameborder="0" allow="autoplay; accelerometer; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+    
+              <iframe width = 360vw height = 160vw class = "video-mixer hidden" i18n-title="channel#ShareDialog:playerEmbedFrame|
+              Embed player Frame copied from share dialog" allowfullscreen="true" 
+              src=""></iframe>
+    
+              <iframe width = 360vw height = 160vw class = "video-twitch hidden" src="" frameborder="0" allowfullscreen="true" 
+              scrolling="no"></iframe>
+            </div>
+          </div>
+
+          <div class="container" style="margin-top: 40px;">
+            <h5>Publicaciones recientes</h5>
+            <ul class="z-depth-0 guides" style="border: none;">
+              <li>
+                <div id="post1" class="collapsible-header grey lighten-4"></div>
+              </li>
+              <li>
+                <div id="post2" class="collapsible-header grey lighten-4"></div>
+              </li>
+              <li>
+                <div id="post3" class="collapsible-header grey lighten-4"></div>
+              </li>
+              <li>
+                <div id="post4" class="collapsible-header grey lighten-4"></div>
+              </li>
+              <li>
+                <div id="post5" class="collapsible-header grey lighten-4"></div>
+              </li>
+              <li>
+                <div id="post6" class="collapsible-header grey lighten-4"></div>
+              </li>
+            </ul>
+            <div>
+              <h5>&nbsp;</h5>
+              <button class = "mentorpost-button hidden">Escribir nueva publicación</button>
+            </div>
+          </div>
+
+          <div class="container" style="z-index: 1; bottom: 0px; margin-top: 40px;">
+              <a id="video1_button" href = "#"><img width = 60vw src="images/video.png">Video1</a>
+              <a id="video2_button" href = "#"><img width = 60vw src="images/video.png">Video2</a>
+              <a id="video3_button" href = "#"><img width = 60vw src="images/video.png">Video3</a>
+              <a class = "checklist-button" href="https://www.d2checklist.com/home"><img width = 60vw src="images/d2checklist.png">D2Checklist</a>
+              <a class = "raidreport-button" href="https://raid.report/"><img width = 60vw src="images/raidreport.png">Raid Report</a>
+          </div>
+        </ul>
+
+        <ul class="forbidden_content hidden">
+          <h5>Lo sentimos, pero no tienes permiso para ver este contenido.
+            Si deseas entrar al campamento o la academia, solicita tu admisión
+            con cualquiera de los administradores del clan.
+          </h5>
+        </ul>
+       
+        <header class="navbar">
+          <nav>
+            <a href="index.html">Regresar al inicio</a></div>
+            <a class="sign-out">Cerrar sesión</a>
+          </nav>
+        </header>
+    </section>
+
+    <div id="modal-seepost" class="modal">
+      <div class="modal-content center-align">
+        <h6 class = "post-op">Por: </h6><br/>
+        <h6 class = "post-title"></h6><br/>
+        <h6 class = "post-description"></h6><br/>
+        <h6 class = "post-video"></h6><br/>
+        <button class = "gotofireteams hidden">Ver escuadra en Fireteams</button>
+        <button class = "close-modal">Cerrar</button>
+        <!-- Modificar esto conforme progrese el desarrollo -->
+      </div>
+    </div>
+
+    <!-- update the version number as needed -->
+    <script src="/__/firebase/7.12.0/firebase-app.js"></script>
+    <!-- include only the Firebase features as you need -->
+    <script src="/__/firebase/7.12.0/firebase-auth.js"></script>
+    <script src="/__/firebase/7.12.0/firebase-firestore.js"></script>
+    <script src="/__/firebase/7.12.0/firebase-functions.js"></script>
+    <!-- initialize the SDK after all desired features are loaded -->
+    <script src="/__/firebase/init.js"></script>
+
+    <!-- initialize firebase -->
+    <script>
+    auth = firebase.auth();
+    db = firebase.firestore();
+
+    var url = new URL(window.location.href);
+    var programcode = Number(url.searchParams.get('programcode'));
+    </script>
+
+    <!-- Compiled and minified JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+    <script src="scripts/programs.js"></script>
+</body>
+</html>

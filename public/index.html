@@ -22,8 +22,11 @@
   </style>
 
   <body class="white">
-    <h4>A.L. Companion .............
-      ..........................................
+    <h5>Abysmal Light Companion</h5>
+    <h4>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
     </h4>
 
       <!-- account modal -->
@@ -36,6 +39,8 @@
         <h5 id = "account-clan-points">Tus puntos de clan: </h5><br/>
         <h5 id = "account-rank">Tu rango de clan: </h5><br/>
         <button id = "gotobandauth">Vincular/Desvincular cuenta de BAND</button>
+        <h6>&nbsp;</h6>
+        <button id = "gotoaccountdetails">Más configuraciones</button>
         <!-- Modificar esto conforme progrese el desarrollo -->
       </div>
     </div>
@@ -134,8 +139,7 @@
         <h5 style ="right: 0px; background-color:white; width: 360vw;">Abysmal Highlights</h5>
         <div>
             <iframe width = 360vw height = 160vw class = "video-youtube hidden"
-          src="" frameborder="0" allow="accelerometer; 
-          autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+          src="" frameborder="0" allow="autoplay; accelerometer; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 
           <iframe width = 360vw height = 160vw class = "video-mixer hidden" i18n-title="channel#ShareDialog:playerEmbedFrame|
           Embed player Frame copied from share dialog" allowfullscreen="true" 
@@ -147,13 +151,13 @@
         </div>
 
         <div class="container" style="margin-top: 40px;">
-          <h5>PRÓXIMAMENTE</h5>
-          <a href="404.html"><img src="images/academy.png"></a>
+          <h5>Raid Academy</h5>
+          <a href="programs.html?programcode=2"><img src="images/academy.png"></a>
         </div>
 
         <div class="container" style="margin-top: 40px;">
-          <h5>PRÓXIMAMENTE</h5>
-          <a href="404.html"><img src="images/camp.png"></a>
+          <h5>Camp Crucible</h5>
+          <a href="programs.html?programcode=1"><img src="images/camp.png"></a>
         </div>
 
         <div class="container" style="margin-top: 40px;">
@@ -194,6 +198,7 @@
           </ul>
 
           <ul class = "ft-button">
+            <h6>&nbsp;</h6>
             <button id="create-ft-button">Crear Escuadra</button>
           </ul>
           
@@ -216,6 +221,8 @@
           <ul class="fireteam-error hidden">
             <h6>No se pudo crear la escuadra.
               Inténtalo más tarde.
+              También asegúrate de que tu nivel
+              esté entre 750 y 1050.
             </h6>
           </ul>
 
@@ -306,8 +313,6 @@
           <h6>Tu directo se subió exitosamente. Una vez que el tiempo de renta expire,
             tu directo seguirá apareciendo en la sección de Abysmal Highlights
             hasta que alguien más rente.
-  
-            Para visualizar los cambios, refresca la página.
           </h6>
         </ul>
 
@@ -346,8 +351,6 @@
         <h6 class="loading-bungie-confirmation hidden">Cargando...</h6>
     </div>
   </div>
-
-  <h4>Abysmal Light Companion</h4>
     
     <!-- update the version number as needed -->
     <script src="/__/firebase/7.12.0/firebase-app.js"></script>
@@ -373,6 +376,10 @@
     var streamPlan = null;
 
     const streamForm = document.querySelector('.stream-form');
+
+    const youtubePlayer = document.querySelector('.video-youtube');
+    const mixerPlayer = document.querySelector('.video-mixer');
+    const twitchPlayer = document.querySelector('.video-twitch');
     </script>
 
     <!-- Compiled and minified JavaScript -->

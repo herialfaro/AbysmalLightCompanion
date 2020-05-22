@@ -100,6 +100,33 @@ streamForm.addEventListener('submit', (e) => {
     FTButtonContainer.classList.remove('hidden');
     loading.classList.add('hidden');
     loading2.classList.add('hidden');
+    if(platform == 1)
+    {
+      mixerPlayer.src = `https://mixer.com/embed/player/${code}?disableLowLatency=1`;
+      mixerPlayer.classList.remove('hidden');
+      twitchPlayer.src = `https://twitch.tv`;
+      twitchPlayer.classList.add('hidden');
+      youtubePlayer.src = `https://www.youtube.com`;
+      youtubePlayer.classList.add('hidden');
+    }
+    else if(platform == 2)
+    {
+      twitchPlayer.src = `https://player.twitch.tv/?channel=${code}`;
+      twitchPlayer.classList.remove('hidden');
+      mixerPlayer.src = `https://mixer.com`;
+      mixerPlayer.classList.add('hidden');
+      youtubePlayer.src = `https://www.youtube.com`;
+      youtubePlayer.classList.add('hidden');
+    }
+    else if(platform == 0)
+    {
+      youtubePlayer.src = `https://www.youtube.com/embed/${code}?autoplay=1`;
+      twitchPlayer.classList.add('hidden');
+      twitchPlayer.src = `https://twitch.tv`;
+      youtubePlayer.classList.remove('hidden');
+      mixerPlayer.src = `https://mixer.com`;
+      mixerPlayer.classList.add('hidden');
+    }
   })
   .catch(error => {streamError.classList.remove('hidden')
   RQButtonContainer.classList.remove('hidden')
@@ -145,235 +172,260 @@ ftselector5.addEventListener('click', () => {
 
 createFTButton.addEventListener('click', (e) => {
   e.stopPropagation();
-  bandError.classList.add('hidden');
-  lfgerror.classList.add('hidden');
-  fterror.classList.add('hidden');
-  FTButtonContainer.classList.add('hidden');
-  RQButtonContainer.classList.add('hidden');
-  loading.classList.remove('hidden');
-  loading2.classList.remove('hidden');
+    bandError.classList.add('hidden');
+    lfgerror.classList.add('hidden');
+    fterror.classList.add('hidden');
+    FTButtonContainer.classList.add('hidden');
+    RQButtonContainer.classList.add('hidden');
+    loading.classList.remove('hidden');
+    loading2.classList.remove('hidden');
 
-  newActivityList.forEach(activity => {
-    if(activity == activityList.value)
-    {
-      var promises = [];
-      var bandpostkey;
-      var activityId;
-      promises.push(db.collection('activity').where('name','==',activity).get());
-      promises.push(db.collectionGroup('extra').where('name','==',activity).get());
-
-      Promise.all(promises)
-          .then((results) => {
-            results.forEach(doc => {
-              if(!doc.empty)
+  if(levelInput.value > 1050 || levelInput.value < 750)
+  {
+    fterror.classList.remove('hidden');
+    FTButtonContainer.classList.remove('hidden');
+    loading.classList.add('hidden');
+    loading2.classList.add('hidden');
+  }
+  else
+  {
+    newActivityList.forEach(activity => {
+      if(activity == activityList.value)
+      {
+        var promises = [];
+        var bandpostkey;
+        var activityId;
+        promises.push(db.collection('activity').where('name','==',activity).get());
+        promises.push(db.collectionGroup('extra').where('name','==',activity).get());
+  
+        Promise.all(promises)
+            .then((results) => {
+              results.forEach(doc => {
+                if(!doc.empty)
+                {
+                  doc.forEach(docSnapshot => {
+                    activityId = docSnapshot.data().docid;
+                  })
+                }
+              });
+  
+        //GET BAND ACCESS TOKEN
+        return db.collection('bandaccesstoken').doc(auth.currentUser.uid).get();
+  
+            }).then((result) => {
+          var bandusertoken;
+          bandpostkey = "";
+          if(bandCheckbox.checked)
+          {
+            if(result.data())
+            {
+                bandusertoken = result.data().token;
+  
+                 //GET BANDS
+            var requestOptions = {
+              method: 'GET',
+              redirect: 'follow'
+            };
+  
+            fetch(`https://openapi.band.us/v2.1/bands?access_token=${bandusertoken}`, requestOptions)
+            .then(response => response.json())
+            .then(result => {
+              var bandkey = "";
+              result.result_data.bands.forEach(
+                band => {
+                  if(band.name == "Abysmal Light LFG")
+                  {
+                    bandkey = band.band_key;
+                  }
+                }
+              );
+              if(bandkey)
               {
-                doc.forEach(docSnapshot => {
-                  activityId = docSnapshot.data().docid;
+                //CREATE FT AND THEN A BAND POST
+                //MODIFY COIN BET IN FUTURE RELEASES
+                var newFireteam = {
+                  bandpostkey: bandpostkey,
+                  creatorid: auth.currentUser.uid,
+                  fireteamactivityid: activityId,
+                  coinbet: false,
+                  isfull: false,
+                  platform: platformSelect.value,
+                  programcode: 0,
+                  requiresmic: micCheckbox.checked
+                }
+        
+                const addFireteam = firebase.functions().httpsCallable('addFireteam');
+                addFireteam(newFireteam)
+                .then((response) => {
+                  db.collection('user').doc(auth.currentUser.uid).get().then(
+                    (snapshot) => {
+                      var content = `${classSelect.value} ${levelInput.value} busca escuadra para ${activityList.value} 
+                      Unirse: ${window.location.hostname}/fireteams.html?fireteamid=${response.data.reference}`;
+                      const url = `https://openapi.band.us/v2.2/band/post/create?access_token=${bandusertoken}&band_key=${bandkey}&content=${content}&do_push=true`;
+  
+                      requestOptions = {
+                        method: 'POST',
+                        redirect: 'follow'
+                      };
+  
+                      fetch(url, requestOptions)
+                      .then(Postresponse => Postresponse.json())
+                      .then(Postresult => {
+                        console.log(Postresult.result_data.post_key);
+                        console.log(snapshot.data().displayname);
+  
+                        var update_fireteam = {
+                          ftid: response.data.reference,
+                          bandpostkey: Postresult.result_data.post_key
+                        }
+  
+                        const updateBANDKeyFireteam  = firebase.functions().httpsCallable('updateBANDKeyFireteam');
+                        updateBANDKeyFireteam(update_fireteam).then((ftsnapshot) => {
+  
+                          var newPlayer = {
+                            ftid: response.data.reference,
+                            uclass: classSelect.value,
+                            ulevel: levelInput.value,
+                            uname: snapshot.data().displayname
+                          }
+                          const joinFireteam = firebase.functions().httpsCallable('joinFireteam');
+                          joinFireteam(newPlayer)
+                          .then(() => {
+                            window.location.replace(`fireteams.html?fireteamid=${response.data.reference}`);
+                          })
+                          .catch(error => {
+                            bandError.classList.add('hidden');
+                            lfgerror.classList.add('hidden');
+                            loading.classList.add('hidden');
+                            loading2.classList.add('hidden');
+                            FTButtonContainer.classList.remove('hidden');
+                            RQButtonContainer.classList.remove('hidden');
+                            fterror.classList.remove('hidden');
+            
+                            var new_deletion = {
+                              ftid: response.data.reference,
+                              creatorid: auth.currentUser.uid
+                            }
+                            const deleteFireteam  = firebase.functions().httpsCallable('deleteFireteam');
+                            deleteFireteam(new_deletion);
+                          });
+  
+                        });
+                      }).catch(error => {
+                        bandError.classList.add('hidden');
+                        lfgerror.classList.add('hidden');
+                        loading.classList.add('hidden');
+                        loading2.classList.add('hidden');
+                        FTButtonContainer.classList.remove('hidden');
+                        RQButtonContainer.classList.remove('hidden');
+                        fterror.classList.remove('hidden');
+        
+                        var new_deletion = {
+                          ftid: response.data.reference,
+                          creatorid: auth.currentUser.uid
+                        }
+                        const deleteFireteam  = firebase.functions().httpsCallable('deleteFireteam');
+                        deleteFireteam(new_deletion);
+                      });
+  
+                    }
+                  );
                 })
+                .catch(error => {
+                    bandError.classList.add('hidden');
+                    lfgerror.classList.add('hidden');
+                    loading.classList.add('hidden');
+                    loading2.classList.add('hidden');
+                    FTButtonContainer.classList.remove('hidden');
+                    RQButtonContainer.classList.remove('hidden');
+                    fterror.classList.remove('hidden');
+                });
+  
+              }
+              else
+              {
+                bandError.classList.add('hidden');
+                FTButtonContainer.classList.remove('hidden');
+                RQButtonContainer.classList.remove('hidden');
+                lfgerror.classList.remove('hidden');
+                loading.classList.add('hidden');
+                loading2.classList.add('hidden');
+                fterror.classList.add('hidden');
               }
             });
-
-      //GET BAND ACCESS TOKEN
-      return db.collection('bandaccesstoken').doc(auth.currentUser.uid).get();
-
-          }).then((result) => {
-        var bandusertoken;
-        bandpostkey = "";
-        if(bandCheckbox.checked)
-        {
-          if(result.data())
-          {
-              bandusertoken = result.data().token;
-
-               //GET BANDS
-          var requestOptions = {
-            method: 'GET',
-            redirect: 'follow'
-          };
-
-          fetch(`https://openapi.band.us/v2.1/bands?access_token=${bandusertoken}`, requestOptions)
-          .then(response => response.json())
-          .then(result => {
-            var bandkey = "";
-            result.result_data.bands.forEach(
-              band => {
-                if(band.name == "Abysmal Light LFG")
-                {
-                  bandkey = band.band_key;
-                }
-              }
-            );
-            if(bandkey)
-            {
-              //CREATE FT AND THEN A BAND POST
-              //MODIFY COIN BET IN FUTURE RELEASES
-              var newFireteam = {
-                bandpostkey: bandpostkey,
-                creatorid: auth.currentUser.uid,
-                fireteamactivityid: activityId,
-                coinbet: false,
-                isfull: false,
-                platform: platformSelect.value,
-                programcode: 0,
-                requiresmic: micCheckbox.checked
-              }
-      
-              const addFireteam = firebase.functions().httpsCallable('addFireteam');
-              addFireteam(newFireteam)
-              .then((response) => {
-                db.collection('user').doc(auth.currentUser.uid).get().then(
-                  (snapshot) => {
-                    var content = `${classSelect.value} ${levelInput.value} busca escuadra para ${activityList.value} 
-                    Unirse: ${window.location.hostname}/fireteams.html?fireteamid=${response.data.reference}`;
-                    const url = `https://openapi.band.us/v2.2/band/post/create?access_token=${bandusertoken}&band_key=${bandkey}&content=${content}&do_push=true`;
-
-                    requestOptions = {
-                      method: 'POST',
-                      redirect: 'follow'
-                    };
-
-                    fetch(url, requestOptions)
-                    .then(Postresponse => Postresponse.json())
-                    .then(Postresult => {
-                      console.log(Postresult.result_data.post_key);
-                      console.log(snapshot.data().displayname);
-
-                      var update_fireteam = {
-                        ftid: response.data.reference,
-                        bandpostkey: Postresult.result_data.post_key
-                      }
-
-                      const updateBANDKeyFireteam  = firebase.functions().httpsCallable('updateBANDKeyFireteam');
-                      updateBANDKeyFireteam(update_fireteam).then((ftsnapshot) => {
-
-                        var newPlayer = {
-                          ftid: response.data.reference,
-                          uclass: classSelect.value,
-                          ulevel: levelInput.value,
-                          uname: snapshot.data().displayname
-                        }
-                        const joinFireteam = firebase.functions().httpsCallable('joinFireteam');
-                        joinFireteam(newPlayer)
-                        .then(() => {
-                          window.location.replace(`fireteams.html?fireteamid=${response.data.reference}`);
-                        })
-                        .catch(error => {
-                          bandError.classList.add('hidden');
-                          lfgerror.classList.add('hidden');
-                          loading.classList.add('hidden');
-                          loading2.classList.add('hidden');
-                          FTButtonContainer.classList.remove('hidden');
-                          RQButtonContainer.classList.remove('hidden');
-                          fterror.classList.remove('hidden');
-          
-                          var new_deletion = {
-                            ftid: response.data.reference,
-                            creatorid: auth.currentUser.uid
-                          }
-                          const deleteFireteam  = firebase.functions().httpsCallable('deleteFireteam');
-                          deleteFireteam(new_deletion);
-                        });
-
-                      });
-                    });
-
-                  }
-                );
-              })
-              .catch(error => {
-                  bandError.classList.add('hidden');
-                  lfgerror.classList.add('hidden');
-                  loading.classList.add('hidden');
-                  loading2.classList.add('hidden');
-                  FTButtonContainer.classList.remove('hidden');
-                  RQButtonContainer.classList.remove('hidden');
-                  fterror.classList.remove('hidden');
-              });
-
             }
             else
             {
-              bandError.classList.add('hidden');
               FTButtonContainer.classList.remove('hidden');
               RQButtonContainer.classList.remove('hidden');
-              lfgerror.classList.remove('hidden');
+              bandError.classList.remove('hidden');
+              lfgerror.classList.add('hidden');
               loading.classList.add('hidden');
               loading2.classList.add('hidden');
               fterror.classList.add('hidden');
             }
-          });
           }
           else
           {
-            FTButtonContainer.classList.remove('hidden');
-            RQButtonContainer.classList.remove('hidden');
-            bandError.classList.remove('hidden');
-            lfgerror.classList.add('hidden');
-            loading.classList.add('hidden');
-            loading2.classList.add('hidden');
-            fterror.classList.add('hidden');
+          //MODIFY COIN BET IN FUTURE RELEASES
+          var newFireteam = {
+            bandpostkey: bandpostkey,
+            creatorid: auth.currentUser.uid,
+            fireteamactivityid: activityId,
+            coinbet: false,
+            isfull: false,
+            platform: platformSelect.value,
+            programcode: 0,
+            requiresmic: micCheckbox.checked
           }
-        }
-        else
-        {
-        //MODIFY COIN BET IN FUTURE RELEASES
-        var newFireteam = {
-          bandpostkey: bandpostkey,
-          creatorid: auth.currentUser.uid,
-          fireteamactivityid: activityId,
-          coinbet: false,
-          isfull: false,
-          platform: platformSelect.value,
-          programcode: 0,
-          requiresmic: micCheckbox.checked
-        }
-
-        const addFireteam = firebase.functions().httpsCallable('addFireteam');
-        addFireteam(newFireteam)
-        .then((response) => {
-          db.collection('user').doc(auth.currentUser.uid).get().then(
-            (snapshot) => {
-              var newPlayer = {
-                ftid: response.data.reference,
-                uclass: classSelect.value,
-                ulevel: levelInput.value,
-                uname: snapshot.data().displayname
-              }
-              const joinFireteam = firebase.functions().httpsCallable('joinFireteam');
-              joinFireteam(newPlayer)
-              .then(() => {
-                window.location.replace(`fireteams.html?fireteamid=${response.data.reference}`);
-              })
-              .catch(error => {var new_deletion = {
+  
+          const addFireteam = firebase.functions().httpsCallable('addFireteam');
+          addFireteam(newFireteam)
+          .then((response) => {
+            db.collection('user').doc(auth.currentUser.uid).get().then(
+              (snapshot) => {
+                var newPlayer = {
                   ftid: response.data.reference,
-                  creatorid: auth.currentUser.uid
+                  uclass: classSelect.value,
+                  ulevel: levelInput.value,
+                  uname: snapshot.data().displayname
                 }
-                const deleteFireteam  = firebase.functions().httpsCallable('deleteFireteam');
-                deleteFireteam(new_deletion);
-
-                bandError.classList.add('hidden');
-                lfgerror.classList.add('hidden');
-                loading.classList.add('hidden');
-                loading2.classList.add('hidden');
-                fterror.classList.remove('hidden');
-                FTButtonContainer.classList.remove('hidden');
-                RQButtonContainer.classList.remove('hidden');
-              });
-            }
-          );
-        })
-        .catch(error => {
-            bandError.classList.add('hidden');
-            lfgerror.classList.add('hidden');
-            loading.classList.add('hidden');
-            loading2.classList.add('hidden');
-            FTButtonContainer.classList.remove('hidden');
-            RQButtonContainer.classList.remove('hidden');
-            fterror.classList.remove('hidden');
-        });
-        
-        }
+                const joinFireteam = firebase.functions().httpsCallable('joinFireteam');
+                joinFireteam(newPlayer)
+                .then(() => {
+                  window.location.replace(`fireteams.html?fireteamid=${response.data.reference}`);
+                })
+                .catch(error => {var new_deletion = {
+                    ftid: response.data.reference,
+                    creatorid: auth.currentUser.uid
+                  }
+                  const deleteFireteam  = firebase.functions().httpsCallable('deleteFireteam');
+                  deleteFireteam(new_deletion);
+  
+                  bandError.classList.add('hidden');
+                  lfgerror.classList.add('hidden');
+                  loading.classList.add('hidden');
+                  loading2.classList.add('hidden');
+                  fterror.classList.remove('hidden');
+                  FTButtonContainer.classList.remove('hidden');
+                  RQButtonContainer.classList.remove('hidden');
+                });
+              }
+            );
+          })
+          .catch(error => {
+              bandError.classList.add('hidden');
+              lfgerror.classList.add('hidden');
+              loading.classList.add('hidden');
+              loading2.classList.add('hidden');
+              FTButtonContainer.classList.remove('hidden');
+              RQButtonContainer.classList.remove('hidden');
+              fterror.classList.remove('hidden');
+          });
+          
+          }
+      });
+      }
     });
-    }
-  });
+  }
 });

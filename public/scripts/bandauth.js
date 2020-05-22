@@ -173,3 +173,10 @@ bandLink.addEventListener('click', (e) => {
     var url = "https://auth.band.us/oauth2/authorize?response_type=code&client_id=282658300&redirect_uri=https://abysmal-light-companion.web.app/bandauth.html";
     window.location.replace(url);
 });
+
+signOut.addEventListener('click', () => {
+    auth.signOut()
+      .then(() => {
+        window.location.replace('index.html');
+      });
+  });
