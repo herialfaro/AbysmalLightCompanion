@@ -124,49 +124,54 @@ auth.onAuthStateChanged(user => {
       db.collection('user').doc(user.uid).get().then((snapshot) => {
         if(snapshot.data().bungieid == '')
         {
-          namesList.classList.remove('hidden');
-          companionModules.classList.add('hidden');
-  
-          //GET ABYSMAL LIGHT LIST OF MEMBERS
-          var myHeaders = new Headers();
-          myHeaders.append("X-API-KEY", "01c645986566474199d1fb7a466c5699");
-          var requestOptions = {
-            method: 'GET',
-            headers: myHeaders,
-            redirect: 'follow'
-          };
-
-          fetch("https://www.bungie.net/Platform/GroupV2/3398247/Members/", requestOptions)
-          .then(response => response.json())
-          .then(result => {
-            var data = result.Response.results;
-            data.forEach(bungiemember => {
-              var userAlreadyExists = false;
-              usersList.forEach(user => {
-                if(bungiemember.destinyUserInfo.membershipId == user.bungieid)
-                {
-                  userAlreadyExists = true;
-                }
+          db.collection('apikeys').get().then((keysnapshot) => {
+            keysnapshot.docs.forEach(doc => {
+              const xapikey = doc.data().bungiekey;
+              namesList.classList.remove('hidden');
+              companionModules.classList.add('hidden');
+      
+              //GET ABYSMAL LIGHT LIST OF MEMBERS
+              var myHeaders = new Headers();
+              myHeaders.append("X-API-KEY", xapikey);
+              var requestOptions = {
+                method: 'GET',
+                headers: myHeaders,
+                redirect: 'follow'
+              };
+    
+              fetch("https://www.bungie.net/Platform/GroupV2/3398247/Members/", requestOptions)
+              .then(response => response.json())
+              .then(result => {
+                var data = result.Response.results;
+                data.forEach(bungiemember => {
+                  var userAlreadyExists = false;
+                  usersList.forEach(user => {
+                    if(bungiemember.destinyUserInfo.membershipId == user.bungieid)
+                    {
+                      userAlreadyExists = true;
+                    }
+                  });
+                  if(!userAlreadyExists)
+                  {
+                    bungieUsers.push(bungiemember);
+                  }
+                });
+            
+                //console.log(bungieUsers);
+                //console.log(data);
+            
+                //Adds bungie users without a taken id to the list
+                bungieUsers.forEach(user => {
+                  var displayname = user.destinyUserInfo.displayName;
+                  newOption = document.createElement("OPTION");
+                  newOptionValue = document.createTextNode(displayname);
+                  newOption.appendChild(newOptionValue);
+            
+                  bungieList.insertBefore(newOption,bungieList.lastChild);
+                });
+              }).catch(error => console.log('error', error));
               });
-              if(!userAlreadyExists)
-              {
-                bungieUsers.push(bungiemember);
-              }
             });
-        
-            //console.log(bungieUsers);
-            //console.log(data);
-        
-            //Adds bungie users without a taken id to the list
-            bungieUsers.forEach(user => {
-              var displayname = user.destinyUserInfo.displayName;
-              newOption = document.createElement("OPTION");
-              newOptionValue = document.createTextNode(displayname);
-              newOption.appendChild(newOptionValue);
-        
-              bungieList.insertBefore(newOption,bungieList.lastChild);
-            });
-          }).catch(error => console.log('error', error));
         }
         else
         {

@@ -1,19 +1,3 @@
-//console.log(firebase.auth().currentUser.uid);
-
-
-//BUNGIE API REQUEST TEMPLATE
-/*var xhr = new XMLHttpRequest();
-xhr.withCredentials = true;
-xhr.open("GET", "https://www.bungie.net/Platform/GroupV2/3398247/Members/");
-xhr.setRequestHeader("X-API-KEY", "01c645986566474199d1fb7a466c5699");
-
-xhr.responseType = 'json';
-
-xhr.onload = () => {
-  const data = xhr.response;
-};
-xhr.send();*/
-
 const accountTrigger = document.querySelector('#account-trigger');
 
 const accountBungie = document.querySelector('#account-bungie-name');
@@ -23,7 +7,6 @@ const accountRank = document.querySelector('#account-rank');
 
 const micCheckbox = document.querySelector('#mic-required');
 const bandCheckbox = document.querySelector('#publish-band');
-const datetimeCheckbox = document.querySelector('#add-datetime');
 const platformSelect = document.querySelector('#platform-list');
 
 const classSelect = document.querySelector('#class-list');
@@ -180,7 +163,7 @@ createFTButton.addEventListener('click', (e) => {
     loading.classList.remove('hidden');
     loading2.classList.remove('hidden');
 
-  if(levelInput.value > 1050 || levelInput.value < 750)
+  if(levelInput.value > 1100 || levelInput.value < 750)
   {
     fterror.classList.remove('hidden');
     FTButtonContainer.classList.remove('hidden');
@@ -308,6 +291,15 @@ createFTButton.addEventListener('click', (e) => {
                             }
                             const deleteFireteam  = firebase.functions().httpsCallable('deleteFireteam');
                             deleteFireteam(new_deletion);
+
+                            const delete_url = `https://openapi.band.us/v2.2/band/post/remove?access_token=${bandusertoken}&band_key=${bandkey}&post_key=${Postresult.result_data.post_key}`;
+  
+                            requestOptions = {
+                              method: 'POST',
+                              redirect: 'follow'
+                            };
+
+                            fetch(delete_url, requestOptions);
                           });
   
                         });
@@ -326,6 +318,15 @@ createFTButton.addEventListener('click', (e) => {
                         }
                         const deleteFireteam  = firebase.functions().httpsCallable('deleteFireteam');
                         deleteFireteam(new_deletion);
+
+                        const delete_url = `https://openapi.band.us/v2.2/band/post/remove?access_token=${bandusertoken}&band_key=${bandkey}&post_key=${Postresult.result_data.post_key}`;
+  
+                            requestOptions = {
+                              method: 'POST',
+                              redirect: 'follow'
+                            };
+
+                            fetch(delete_url, requestOptions);
                       });
   
                     }
@@ -339,6 +340,15 @@ createFTButton.addEventListener('click', (e) => {
                     FTButtonContainer.classList.remove('hidden');
                     RQButtonContainer.classList.remove('hidden');
                     fterror.classList.remove('hidden');
+
+                    const delete_url = `https://openapi.band.us/v2.2/band/post/remove?access_token=${bandusertoken}&band_key=${bandkey}&post_key=${Postresult.result_data.post_key}`;
+  
+                            requestOptions = {
+                              method: 'POST',
+                              redirect: 'follow'
+                            };
+
+                            fetch(delete_url, requestOptions);
                 });
   
               }

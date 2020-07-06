@@ -28,6 +28,157 @@
       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
     </h4>
 
+    <!-- postcreation modal -->
+    <div id="modal-programpost" class="modal">
+      <div class="modal-content center-align">
+        <h6 id = "modal-message-text">Escribir publicación: </h6><br/>
+            <label>Título</label>
+            <input type="text" id = "program-title"/>
+            <label>Descripción</label>
+            <textarea id = "program-post" rows="10" cols="100"></textarea>
+
+            <ul>
+              <label>
+                <input style = "width: 10vw;" id="add-fireteam" type="checkbox" checked ="checked"/>
+                <span>Crear una escuadra</span>
+              </label>
+              <label>
+                <input style = "width: 10vw;" id="add-video" type="checkbox" checked ="checked"/>
+                <span>Adjuntar un video</span>
+              </label>
+            </ul>
+
+            <div class="fireteam-container" style="margin-top: 40px;">
+              <h5>Crear Escuadra</h5>
+    
+              <h6>Actividad:</h6>
+                <select id = "activity-list" class="browser-default">
+                </select>
+    
+                <h6>Soy:</h6>
+                <select id = "class-list" class="browser-default">
+                    <option value="Titán">Titán</option>
+                    <option value="Cazador">Cazador</option>
+                    <option value="Hechicero">Hechicero</option>
+                </select>
+    
+                <h6>Mi nivel es:</h6>
+                <input id="level" type="number" class="browser-default" value="750">
+    
+                <h6>Plataforma:</h6>
+                <select id = "platform-list" class="browser-default">
+                  <option value="Xbox">Xbox</option>
+                  <option value="PC">PC</option>
+              </select>
+    
+              <ul>
+                <label>
+                  <input style = "width: 10vw;" id="mic-required" type="checkbox" checked ="checked"/>
+                  <span>Requiere micrófono</span>
+                </label>
+              </ul>
+    
+              <ul>
+                <label>
+                  <input style = "width: 10vw;" id="publish-band" type="checkbox" checked="checked"/>
+                  <span>Conectar con BAND</span>
+                </label>
+              </ul>
+    
+              <!--ul class="band-error hidden">
+                <h6>No tienes cuenta de BAND vinculada.
+                  Por favor vincula tu cuenta desde la sección
+                  Detalles de la Cuenta.
+                </h6>
+              </ul>
+    
+              <ul class="lfg-error hidden">
+                <h6>No se encontró el BAND requerido.
+                  Es posible que haya ocurrido un error
+                  en el servidor o no formes parte
+                  de Abysmal Light LFG.
+                </h6>
+              </ul>
+    
+              <ul class="fireteam-error hidden">
+                <h6>No se pudo crear la escuadra.
+                  Inténtalo más tarde.
+                  También asegúrate de que tu nivel
+                  esté entre 750 y 1050.
+                </h6>
+              </ul>
+    
+              <h6 class="loading hidden">Cargando...</h6-->
+            </div>
+
+            <div class="stream-container" style="margin-top: 40px;">
+              <h5>Adjuntar video/directo</h5>
+              
+              <form class="stream-form">
+                <h6>Plataforma:</h6>
+                <select id = "stream-list" class="browser-default">
+                  <option value=1>Mixer</option>
+                  <option value=2>Twitch</option>
+                  <option value=0>Youtube</option>
+              </select>
+              <h6>Canal:</h6>
+                <select id = "channel-list" class="browser-default">
+                  <option value=1>Canal 1</option>
+                  <option value=2>Canal 2</option>
+                  <option value=3>Canal 3</option>
+              </select>
+              <h6>Código del video:</h6>
+                <input type="text" name="code">
+                <ul>
+                  <h6>Ejemplos de códigos (resaltados en color azul):</h6>
+                  <img src="images/mixer.PNG">
+                  <img src="images/twitch.PNG">
+                  <img src="images/youtube.PNG">
+                </ul>
+              </form>
+    
+              <!--h6 class="loading2 hidden">Cargando...</h6>
+    
+              <ul class="stream-error hidden">
+                <h6>No se pudo completar la transacción.
+                  Parece que hubo un error en el servidor
+                  o no cuentas con suficientes Abysmal Coins.
+                  Inténtalo más tarde.
+                </h6>
+              </ul>
+    
+              <ul class="stream-notenabled hidden">
+                <h6>Por el momento la opción para
+                  rentar el espacio de directos está
+                  deshabilitada.
+                </h6>
+              </ul>
+    
+            <ul class="stream-correct hidden">
+              <h6>Tu directo se subió exitosamente. Una vez que el tiempo de renta expire,
+                tu directo seguirá apareciendo en la sección de Abysmal Highlights
+                hasta que alguien más rente.
+              </h6>
+            </ul-->
+      </div>
+
+      <ul class="post-error hidden">
+        <h6>Hubo un problema al crear la publicación. Por favor
+          inténtalo de nuevo más tarde. Asegúrate de que:
+          *La publicación no tenga más de 500 caracteres.
+          *El título no esté en blanco.
+          *Si quieres agregar una escuadra, que el nivel de tu personaje no sea menor a 750 o mayor a 1100.
+          *Si quieres adjuntar un directo, que el código del mismo no esté en blanco.
+        </h6>
+      </ul>
+      
+      <h6 class="loading hidden">Cargando...</h6>
+
+      <button class = "post-publish">Publicar</button>
+
+      </div>
+    </div>
+
     <section class="content">
       <header>
         <nav>
@@ -130,6 +281,11 @@
 
     var url = new URL(window.location.href);
     var programcode = Number(url.searchParams.get('programcode'));
+    var postfireteamid;
+    var newActivityList = [];
+
+    const streamForm = document.querySelector('.stream-form');
+
     </script>
 
     <!-- Compiled and minified JavaScript -->

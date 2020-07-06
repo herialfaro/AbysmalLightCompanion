@@ -115,7 +115,7 @@ exports.newUserSignUp = functions.auth.user().onCreate(user => {
     {
         throw new functions.https.HttpsError('unauthenticated','only authenticated users can add requests');
     }
-    if((data.ulevel > 1050) || (data.ulevel < 750))
+    if((data.ulevel > 1100) || (data.ulevel < 750))
     {
         throw new functions.https.HttpsError('invalid level','level is beyond acceptable parameters');
     }
@@ -212,16 +212,59 @@ exports.newUserSignUp = functions.auth.user().onCreate(user => {
     return {
         reference: snapshot.id
     }
-  })
+  });
 
-  exports.requestBANDToken = functions.https.onRequest((request, response) => {
+  exports.addMentorPost = functions.https.onCall(async(data,context) => {
+    if(!context.auth)
+    {
+        throw new functions.https.HttpsError('unauthenticated','only authenticated users can add requests');
+    }
+    if(data.p_description.lenght > 500)
+    {
+        throw new functions.https.HttpsError('string lenght exceeded','post description cannot exceed 500 characters');
+    }
+    var ismentor = false;
+    var p_mentorid;
+    const mentors = await admin.firestore().collection('mentors').where('programcode','==',data.p_programcode).get();
+    mentors.docs.forEach(info => {
+        if(info.data().userid === context.auth.uid)
+        {
+            ismentor = true;
+            p_mentorid = info.id;
+        }
+    });
+    if(ismentor)
+    {
+        const snapshot = await admin.firestore().collection('mentorpost').add(
+            {
+                currentvideoid: data.p_currentvideoid,
+                dateadded: admin.firestore.FieldValue.serverTimestamp(),
+                description: data.p_description,
+                fireteamid: data.p_fireteamid,
+                mentorid: p_mentorid,
+                programcode: data.p_programcode,
+                title: data.p_title
+            }
+        );
+        return {
+            reference: snapshot.id
+        }
+    }
+    else
+    {
+        throw new functions.https.HttpsError('unautorized','user is not a mentor');
+    }
+  });
+
+  exports.requestBANDToken = functions.https.onRequest(async(request, response) => {
     const cors = require('cors')({origin:true});
     var rp = require('request-promise');
     cors(request, response, () => {
+        const bandkey = request.query.bandkey;
 
         let _uri = `https://auth.band.us/oauth2/token?grant_type=authorization_code&code=${request.query.code}`;
         let _headers = {
-            'Authorization': `Basic MjgyNjU4MzAwOnRqMW5SSFRnNFhlTDdqeWhTMi1iRGRuR3dKWWFiek5M`
+            'Authorization': bandkey
         }
 
         var options = {
@@ -342,7 +385,78 @@ exports.newUserSignUp = functions.auth.user().onCreate(user => {
         return {
             reference: new_video.id
         }
-        
+    });
+
+    exports.addProjectStream = functions.https.onCall(async(data,context) => {
+        if(!context.auth)
+        {
+            throw new functions.https.HttpsError('unauthenticated','only authenticated users can add requests');
+        }
+        if(!data.requestcode)
+        {
+            throw new functions.https.HttpsError('invalid code','stream code cannot be empty');
+        }
+        var requesttag;
+        switch(data.requestprogram)
+        {
+            case 1:
+                switch(data.requestchannel)
+                {
+                   case '1':
+                    requesttag = 'Video Campamento 1';
+                   break;
+                   case '2':
+                    requesttag = 'Video Campamento 2';
+                   break;
+                   case '3':
+                    requesttag = 'Video Campamento 3';
+                   break;
+                   default:
+                   throw new functions.https.HttpsError('invalid channel','channel code cannot be null');
+                }
+                break;
+            case 2:
+                switch(data.requestchannel)
+                {
+                   case '1':
+                    requesttag = 'Video Academia 1';
+                   break;
+                   case '2':
+                    requesttag = 'Video Academia 2';
+                   break;
+                   case '3':
+                    requesttag = 'Video Academia 3';
+                   break;
+                   default:
+                   throw new functions.https.HttpsError('invalid channel','channel code cannot be null');
+                }
+                break;
+            default:
+                throw new functions.https.HttpsError('invalid program','program code cannot be null');
+        }
+        const projectstream = await admin.firestore().collection('currentvideo').where('tag','==',requesttag).get();
+        var streamchannelid;
+        projectstream.docs.forEach(doc => {
+            streamchannelid = doc.id;
+        });
+
+        const new_video = await admin.firestore().collection('video').add(
+            {
+                code: data.requestcode,
+                videotype: data.requestplatform
+            }
+        );
+
+        const update_video = await admin.firestore().collection('currentvideo').doc(streamchannelid).update(
+            {
+                videoid: new_video.id,
+                dateupdated: admin.firestore.FieldValue.serverTimestamp(),
+                updatebyuser: context.auth.uid
+            }
+        );
+        return {
+            reference: streamchannelid
+        }
     });
 
     exports.checkDailyItems = functions.https.onCall(async(data,context) => {
@@ -416,26 +530,3 @@ exports.newUserSignUp = functions.auth.user().onCreate(user => {
             reference: snapshot.id
         }
     });
-
-  //http authorizarion request
-
-  //exports.GetBandAccessToken = functions.https.onRequest((req,res) => {
-      
-    /*const cors = require('cors')({origin:true});
-    cors(request, response, () => {});
-    var rp = require('request-promise');
-    //await cors(req, res, () => {
-    let myHeaders = new Headers();
-    myHeaders.append("Authorization", "Basic MjgyNjU4MzAwOnRqMW5SSFRnNFhlTDdqeWhTMi1iRGRuR3dKWWFiek5M");
-    
-    var options = {
-        method: 'GET',
-        uri: data.url,
-        headers: myHeaders,
-        json: true
-    }
-
-    var response = await rp(options);
-    return response;*/
-
-  //});

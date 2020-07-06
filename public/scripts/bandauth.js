@@ -45,54 +45,49 @@ auth.onAuthStateChanged(user => {
           headers: myHeaders,
           json: true
           }*/
-
-                    var requestOptions = {
-                        method: 'GET',
-                        redirect: 'follow'
-                      };
-                    fetch(`https://us-central1-abysmal-light-companion.cloudfunctions.net/requestBANDToken?code=${auth_code}`, requestOptions)
-                    .then(response => response.json())
-                    .then(result => { 
-                        if(result.access_token)
-                        {
-                            var new_token = {
-                                token: result.access_token
-                              }
-                            const addBANDAccessToken  = firebase.functions().httpsCallable('addBANDAccessToken');
-                            addBANDAccessToken(new_token)
-                            .then(() => {
-                                window.location.replace('bandauth.html');
-                            })
-                            .catch(error => {
-                                bandMemberError.remove('hidden');
-                                bandAuthorized.classList.add('hidden');
-                                bandUnauthorized.classList.add('hidden');
-                                bandMemberNotFound.classList.add('hidden');
-                            });
-                        }
-                        else
-                        {
+          db.collection('apikeys').get().then((keysnapshot) => {
+            keysnapshot.docs.forEach(doc => {
+                const bandkey = doc.data().bandkey;
+                var requestOptions = {
+                    method: 'GET',
+                    redirect: 'follow'
+                  };
+                fetch(`https://us-central1-abysmal-light-companion.cloudfunctions.net/requestBANDToken?code=${auth_code}&bandkey=${bandkey}`, requestOptions)
+                .then(response => response.json())
+                .then(result => { 
+                    if(result.access_token)
+                    {
+                        var new_token = {
+                            token: result.access_token
+                          }
+                        const addBANDAccessToken  = firebase.functions().httpsCallable('addBANDAccessToken');
+                        addBANDAccessToken(new_token)
+                        .then(() => {
+                            window.location.replace('bandauth.html');
+                        })
+                        .catch(error => {
                             bandMemberError.remove('hidden');
                             bandAuthorized.classList.add('hidden');
                             bandUnauthorized.classList.add('hidden');
                             bandMemberNotFound.classList.add('hidden');
-                        }
-                    })
-                    .catch((error) => {
+                        });
+                    }
+                    else
+                    {
                         bandMemberError.remove('hidden');
                         bandAuthorized.classList.add('hidden');
                         bandUnauthorized.classList.add('hidden');
                         bandMemberNotFound.classList.add('hidden');
-                    });
-
-          /*const GetBandAccessToken  = firebase.functions().httpsCallable('GetBandAccessToken');
-          GetBandAccessToken((url,options))
-        .then((response) => {
-            console.log(response);
-        });*/
-
-          //cloud function request
-
+                    }
+                })
+                .catch((error) => {
+                    bandMemberError.remove('hidden');
+                    bandAuthorized.classList.add('hidden');
+                    bandUnauthorized.classList.add('hidden');
+                    bandMemberNotFound.classList.add('hidden');
+                });
+            });
+          });
         }
         else
         {
