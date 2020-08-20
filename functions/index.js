@@ -28,14 +28,17 @@ exports.newUserSignUp = functions.auth.user().onCreate(user => {
             bungieid: '',
             bungietype: 0,
             clanpoints: 0,
+            displayhighlight: true,
             dailymessage: true,
             displayname: '',
             isadmin: false,
             isinacademy: false,
             isincamp: false,
             lastdailycoins: admin.firestore.FieldValue.serverTimestamp(),
+            preference: 1,
             rankid: 'nCijJ085MDcKLkLGnXxS',
-            rankup: false
+            rankup: false,
+            temporalpoints: 0
         }
     );
   });
@@ -60,6 +63,172 @@ exports.newUserSignUp = functions.auth.user().onCreate(user => {
           }
       );
       return {
+        reference: snapshot.id
+    }
+  });
+
+  //firestore call update temporalpoints
+  exports.updateTemporalPoints = functions.https.onCall(async(data,context) => {
+    if(!context.auth)
+    {
+        throw new functions.https.HttpsError('unauthenticated','only authenticated users can add requests');
+    }
+    const admincheck = await admin.firestore().collection('user').doc(context.auth.uid).get();
+    if(!admincheck.data().isadmin)
+    {
+        throw new functions.https.HttpsError('unauthenticated','only admins can add requests');
+    }
+    const snapshot = await admin.firestore().collection('user').doc(data.userid).update(
+        {
+            temporalpoints: data.temporalpoints
+        }
+    );
+    return {
+      reference: snapshot.id
+  }
+  });
+
+  //firestore call update rankup only
+  exports.updateRankUpOnly = functions.https.onCall(async(data,context) => {
+    if(!context.auth)
+    {
+        throw new functions.https.HttpsError('unauthenticated','only authenticated users can add requests');
+    }
+    const admincheck = await admin.firestore().collection('user').doc(context.auth.uid).get();
+    if(!admincheck.data().isadmin)
+    {
+        throw new functions.https.HttpsError('unauthenticated','only admins can add requests');
+    }
+    const snapshot = await admin.firestore().collection('user').doc(data.userid).update(
+        {
+            rankup: data.rankup
+        }
+    );
+    return {
+      reference: snapshot.id
+  }
+});
+
+  //firestore call update ongoingcheck only
+  exports.updateOngoingCheck = functions.https.onCall(async(data,context) => {
+    if(!context.auth)
+    {
+        throw new functions.https.HttpsError('unauthenticated','only authenticated users can add requests');
+    }
+    const admincheck = await admin.firestore().collection('user').doc(context.auth.uid).get();
+    if(!admincheck.data().isadmin)
+    {
+        throw new functions.https.HttpsError('unauthenticated','only admins can add requests');
+    }
+    var recordid;
+    const pointsrecord = await admin.firestore().collection('pointsrecord').get();
+    pointsrecord.forEach(record => {
+        recordid = record.id;
+    });
+    const snapshot = await admin.firestore().collection('pointsrecord').doc(recordid).update(
+        {
+            ongoingcheck: data.ongoingcheck,
+            ongoingmark: admin.firestore.FieldValue.serverTimestamp()
+        }
+    );
+    return {
+      reference: snapshot.id
+  }
+});
+
+  //firestore call override ongoingcheck
+  exports.overrideOngoingCheck = functions.https.onCall(async(data,context) => {
+    if(!context.auth)
+    {
+        throw new functions.https.HttpsError('unauthenticated','only authenticated users can add requests');
+    }
+    const admincheck = await admin.firestore().collection('user').doc(context.auth.uid).get();
+    if(!admincheck.data().isadmin)
+    {
+        throw new functions.https.HttpsError('unauthenticated','only admins can add requests');
+    }
+    var recordid;
+    const pointsrecord = await admin.firestore().collection('pointsrecord').get();
+    pointsrecord.forEach(record => {
+        recordid = record.id;
+    });
+    const record = await admin.firestore().collection('pointsrecord').doc(recordid).get();
+    if(!(record.data().ongoingcheck))
+    {
+        throw new functions.https.HttpsError('invalid','ongoingcheck is already false');
+    }
+    const now = Date.now();
+    const checkdate = record.data().ongoingmark.seconds;
+    const checkmark = (checkdate * 1000) + 10800000;
+    if(now < checkmark)
+    {
+        throw new functions.https.HttpsError('anticipation','three hours have not yet passed since last check');
+    }
+    const snapshot = await admin.firestore().collection('pointsrecord').doc(recordid).update(
+        {
+            ongoingcheck: false,
+            ongoingmark: admin.firestore.FieldValue.serverTimestamp()
+        }
+    );
+    return {
+      reference: snapshot.id
+  }
+});
+
+  //firestore call update users rank
+  exports.updateUsersRanks = functions.https.onCall(async(data,context) => {
+    if(!context.auth)
+    {
+        throw new functions.https.HttpsError('unauthenticated','only authenticated users can add requests');
+    }
+    const admincheck = await admin.firestore().collection('user').doc(context.auth.uid).get();
+    if(!admincheck.data().isadmin)
+    {
+        throw new functions.https.HttpsError('unauthenticated','only admins can add requests');
+    }
+    const allusers = await admin.firestore().collection('user').get();
+    const ranks = await admin.firestore().collection('rank').orderBy('pointsneeded').get();
+    var snapshotlist = [];
+    allusers.forEach(user => {
+        var totalpoints = user.data().clanpoints;
+        const currentrank = user.data().rankid;
+        const temppoints = user.data().temporalpoints;
+        totalpoints += temppoints;
+        var newrank = currentrank;
+        var rankup = false;
+        ranks.forEach(rank => {
+            if(totalpoints >= rank.data().pointsneeded)
+            {
+                newrank = rank.id;
+            }
+        });
+        if(newrank !== currentrank)
+        {
+            rankup = true;
+        }
+        const updaterank = admin.firestore().collection('user').doc(user.id).update(
+            {
+                clanpoints: totalpoints,
+                rankup: rankup,
+                rankid: newrank
+            }
+        );
+        snapshotlist.push(updaterank);
+    });
+    await Promise.all(snapshotlist);
+    var recordid;
+    const pointsrecord = await admin.firestore().collection('pointsrecord').get();
+    pointsrecord.forEach(record => {
+        recordid = record.id;
+    });
+    const snapshot = await admin.firestore().collection('pointsrecord').doc(recordid).update(
+        {
+            lastadminchecked: context.auth.uid,
+            lastcheck: admin.firestore.FieldValue.serverTimestamp(),
+            ongoingcheck: false
+        }
+    );
+    return {
         reference: snapshot.id
     }
   });
@@ -255,37 +424,6 @@ exports.newUserSignUp = functions.auth.user().onCreate(user => {
         throw new functions.https.HttpsError('unautorized','user is not a mentor');
     }
   });
-
-  exports.requestBANDToken = functions.https.onRequest(async(request, response) => {
-    const cors = require('cors')({origin:true});
-    var rp = require('request-promise');
-    cors(request, response, () => {
-        const bandkey = request.query.bandkey;
-
-        let _uri = `https://auth.band.us/oauth2/token?grant_type=authorization_code&code=${request.query.code}`;
-        let _headers = {
-            'Authorization': bandkey
-        }
-
-        var options = {
-            method: 'POST',
-            uri: _uri,
-            headers: _headers,
-            json: true
-        };
-
-        rp(options)
-            .then(parsedBody => {
-                return response.send(parsedBody);
-            })
-            .catch(err => {
-                throw response.status(500).send(err)
-                //.... Please refer to the following official video: https://www.youtube.com/watch?v=7IkUgCLr5oA&t=1s&list=PLl-K7zZEsYLkPZHe41m4jfAxUi0JjLgSM&index=3
-            });
-
-    });
-
-    });
 
     exports.requestStreamRent = functions.https.onCall(async(data,context) => {
         if(!context.auth)
@@ -515,7 +653,6 @@ exports.newUserSignUp = functions.auth.user().onCreate(user => {
         }
     });
 
-
     exports.updateRecieveDaily = functions.https.onCall(async(data,context) => {
         if(!context.auth)
         {
@@ -530,3 +667,64 @@ exports.newUserSignUp = functions.auth.user().onCreate(user => {
             reference: snapshot.id
         }
     });
+
+    exports.updatePreference = functions.https.onCall(async(data,context) => {
+        if(!context.auth)
+        {
+            throw new functions.https.HttpsError('unauthenticated','only authenticated users can add requests');
+        }
+        const snapshot = await admin.firestore().collection('user').doc(context.auth.uid).update(
+            {
+                preference: data.settings
+            }
+        );
+        return {
+            reference: snapshot.id
+        }
+    });
+
+    exports.updateShowStream = functions.https.onCall(async(data,context) => {
+        if(!context.auth)
+        {
+            throw new functions.https.HttpsError('unauthenticated','only authenticated users can add requests');
+        }
+        const snapshot = await admin.firestore().collection('user').doc(context.auth.uid).update(
+            {
+                displayhighlight: data.settings
+            }
+        );
+        return {
+            reference: snapshot.id
+        }
+    });
+
+    exports.requestBANDToken = functions.https.onRequest(async(request, response) => {
+        const cors = require('cors')({origin:true});
+        var rp = require('request-promise');
+        cors(request, response, () => {
+            const bandkey = request.query.bandkey;
+    
+            let _uri = `https://auth.band.us/oauth2/token?grant_type=authorization_code&code=${request.query.code}`;
+            let _headers = {
+                'Authorization': bandkey
+            }
+    
+            var options = {
+                method: 'POST',
+                uri: _uri,
+                headers: _headers,
+                json: true
+            };
+    
+            rp(options)
+                .then(parsedBody => {
+                    return response.send(parsedBody);
+                })
+                .catch(err => {
+                    throw response.status(500).send(err)
+                    //.... Please refer to the following official video: https://www.youtube.com/watch?v=7IkUgCLr5oA&t=1s&list=PLl-K7zZEsYLkPZHe41m4jfAxUi0JjLgSM&index=3
+                });
+    
+        });
+    
+        });

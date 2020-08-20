@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+        <link rel="stylesheet" href="css/styles.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+        <title>Score Tracker</title>
+    
+    </head>
+
+    <!-- Hide HTML elements with hidden class -->
+  <style>
+    .hidden{
+      display: none !important;
+    }
+
+    textarea {
+      resize: none;
+    }
+  </style>
+
+<body class="white">
+    <h4>Score Tracker</h4>
+
+    <!-- point calculation modal -->
+  <div id="pointslist-modal" class="modal">
+    <div class="modal-content">
+      <h5>Lista de puntos de esta semana:</h5><br/>
+      <ul id = 'pointslist-list' class="z-depth-0 guides" style="border: none;"></ul>
+      <h6 class = 'pointslist-error hidden'>Hubo un error al intentar obtener el listado,
+        por favor prueba más tarde.
+      </h6>
+      <button class = 'pointslist-close'>Cerrar</button>
+    </div>
+  </div>
+
+  <!-- point calculation modal -->
+  <div id="bandpost-modal" class="modal">
+    <div class="modal-content">
+      <h5>¿Publicar los resultados en BAND?</h5><br/>
+      <button class = 'band-confirmation'>Sí</button>
+      <button class = 'band-no'>No</button>
+      <h6 class = 'band-loading hidden'>Cargando...</h6>
+      <h6 class = 'band-error hidden'>Hubo un error al intentar publicar en BAND.
+        Puede deberse a que no has vinculado una cuenta de BAND, no has otorgado permiso
+        al acompañante de publicar en el BAND de Abysmal Light, u ocurrió un problema con el
+        servidor. Por favor, inténtalo más tarde.
+      </h6>
+      <h6 class = 'band-published hidden'>¡Publicación exitosa! Ahora puedes refrescar la página o regresar al inicio.</h6>
+    </div>
+  </div>
+
+    <section class="content">
+      <header>
+        <nav>
+        </nav>
+      </header>
+
+        <ul class="score-tracker">
+            <li>
+              <div class="container" style="margin-top: 40px;">
+                <h5>Esta herramienta calcula los puntos semanales de los miembros de clan</h5>
+                <h6 class = "loading-process hidden">Cargando...</h6>
+                <h6 class = "percentage-process hidden">Proceso del paso 3: </h6>
+                <h6 class = "points-ready hidden">Asegúrate de tener una conexión a internet estable para este proceso.</h6>
+                <h6 class = "points-caluclated hidden">Los puntos de esta semana ya fueron calculados. ¿Quieres publicar los resultados en BAND?</h6>
+                <h6 class = "ongoing-check hidden">Actualmente ya hay alguien calculando los puntos de esta semana.</h6>
+                <button class="calculate-btn hidden">Calcular puntos</button>
+                <button class="publishonband hidden">Publicar en BAND</button>
+                <h6>&nbsp;</h6>
+                <button class="seelist hidden">Lista de puntos de esta semana</button>
+              </div>
+            </li>
+            <li>
+                <div class="container" style="margin-top: 40px;">
+                    <h6 id = 'last-admin'>Última actualización por: </h6>
+                </div>
+            </li>
+            <li>
+              <div class="container" style="margin-top: 40px;">
+                <h5>Invalidar valor ongoingcheck del registro de puntos</h5>
+                <button class="ongoingerror-btn">Invalidar</button>
+                <h6 class = 'ongoingerror-text'>Realizar esta acción solo en caso de que haya ocurrido algún problema a mitad
+                  del cálculo del registro semanal y el Score Tracker se haya atascado en el
+                  mensaje: <i>Actualmente ya hay alguien calculando los puntos de esta semana.</i>
+                </h6>
+                <h6 class = 'ongoingerror-loading hidden'>Cargando...</h6>
+                <h6 class = 'ongoingerror-failure hidden'>Hubo un problema al intentar invalidar el valor,
+                  es posible que haya ocurrido alguno de los siguientes errores:
+                  *El valor ongoingcheck es falso.
+                  *Aún no han pasado al menos tres horas desde el último registro.
+                  *No hubo respuesta del servidor.
+                </h6>
+                <h6 class = 'ongoingerror-success hidden'>El valor ongoingcheck
+                  ha sido invalidado exitosamente, refresca la página e intenta calcular los puntos de esta
+                  semana nuevamente.
+                </h6>
+              </div>
+            </li>
+        </ul>
+       
+        <header class="navbar">
+          <nav>
+            <a href="index.html">Regresar al inicio</a></div>
+            <a class="sign-out">Cerrar sesión</a>
+          </nav>
+        </header>
+    </section>
+
+    <!-- update the version number as needed -->
+    <script src="/__/firebase/7.12.0/firebase-app.js"></script>
+    <!-- include only the Firebase features as you need -->
+    <script src="/__/firebase/7.12.0/firebase-auth.js"></script>
+    <script src="/__/firebase/7.12.0/firebase-firestore.js"></script>
+    <script src="/__/firebase/7.12.0/firebase-functions.js"></script>
+    <!-- initialize the SDK after all desired features are loaded -->
+    <script src="/__/firebase/init.js"></script>
+
+    <!-- initialize firebase -->
+    <script>
+    auth = firebase.auth();
+    db = firebase.firestore();
+    </script>
+
+    <!-- Compiled and minified JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+    <script src="scripts/scoretracker.js"></script>
+</body>
+</html>

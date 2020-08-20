@@ -32,6 +32,18 @@ const dailyMessage = document.querySelector('#modal-message-text');
 const dailyMessageButton = document.querySelector('#modal-message-close');
 const dailyMessagemodal = document.querySelector('#modal-daily');
 
+const forgottenPassword = document.querySelector('#forgotten_password');
+const passwordModal = document.querySelector('#modal-password');
+const passwordForm = document.querySelector('.password_reset');
+
+const closebtncontainer = document.querySelector('.close_highlight');
+const closebtn = document.querySelector('#close_highlight_btn');
+const openbtncontainer = document.querySelector('.open_highlight');
+const openbtn = document.querySelector('#open_highlight_btn');
+
+const scoreTrackerBtn = document.querySelector('.go-to-scoretracker');
+const adminWarning = document.querySelector('.admin-warning');
+
 streamPlan = document.querySelector('#stream-plan');
 
 // toggle auth modals
@@ -39,6 +51,10 @@ authSwitchLinks.forEach(link => {
   link.addEventListener('click', () => {
     authModals.forEach(modal => modal.classList.toggle('active'));
   });
+});
+
+forgottenPassword.addEventListener('click', (e) => {
+  M.Modal.getInstance(passwordModal).open();
 });
 
 bandAuthButton.addEventListener('click', (e) => {
@@ -61,6 +77,21 @@ googlesignin.addEventListener('click', (e) => {
   .catch(error => {
     console.log(error.message);
   });
+});
+
+// forgot password form
+passwordForm.addEventListener('submit', (e) => {
+  e.preventDefault();
+  
+  const email = passwordForm.email.value;
+
+  auth.sendPasswordResetEmail(email)
+    .then(() => {
+      passwordForm.querySelector('.error').textContent = "Se te ha enviado un correo electrónico donde podrás restablecer tu contraseña.";
+    })
+    .catch(error => {
+      passwordForm.querySelector('.error').textContent = error.message;
+    });
 });
 
 // register form
@@ -175,6 +206,13 @@ auth.onAuthStateChanged(user => {
         }
         else
         {
+          //CHECKS IF USER IS ADMIN
+          if(snapshot.data().isadmin)
+          {
+            scoreTrackerBtn.classList.remove('hidden');
+            adminWarning.classList.add('hidden');
+          }
+
           //loads daily message
           const checkDailyItems = firebase.functions().httpsCallable('checkDailyItems');
           checkDailyItems()
@@ -280,36 +318,18 @@ auth.onAuthStateChanged(user => {
             });
           });
           
-
-          //loads highlight
-    db.collection('currentvideo').where('platform','==',0).get().then(
-      (snapshot) => {
-        snapshot.docs.forEach(
-          doc => {
-            db.collection('video').doc(doc.data().videoid).get().then(
-              (videoSnapshot) => {
-                var type = videoSnapshot.data().videotype;
-                if(type == 1)
-                {
-                  mixerPlayer.src = `https://mixer.com/embed/player/${videoSnapshot.data().code}?disableLowLatency=1`;
-                  mixerPlayer.classList.remove('hidden');
-                }
-                else if(type == 2)
-                {
-                  twitchPlayer.src = `https://player.twitch.tv/?channel=${videoSnapshot.data().code}`;
-                  twitchPlayer.classList.remove('hidden');
-                }
-                else if(type == 0)
-                {
-                  youtubePlayer.src = `https://www.youtube.com/embed/${videoSnapshot.data().code}?autoplay=1`;
-                  youtubePlayer.classList.remove('hidden');
-                }
-              }
-            )
-          }
-        );
-      }
-    );
+    //checks if user sees stream
+    var displayStream = snapshot.data().displayhighlight;
+    if(displayStream)
+    {
+      closebtncontainer.classList.remove('hidden');
+      //loads highlight
+      LoadHighlight();
+    }
+    else
+    {
+      openbtncontainer.classList.remove('hidden');
+    }
 
           namesList.classList.add('hidden');
           companionModules.classList.remove('hidden');
@@ -485,3 +505,51 @@ dailyMessageButton.addEventListener('click', (e) => {
   e.stopPropagation();
   M.Modal.getInstance(dailyMessagemodal).close();
   });
+
+  openbtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    LoadHighlight();
+    closebtncontainer.classList.remove('hidden');
+    openbtncontainer.classList.add('hidden');
+  });
+
+  closebtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    twitchPlayer.src = `https://twitch.tv`;
+    youtubePlayer.src = `https://www.youtube.com`;
+    twitchPlayer.classList.add('hidden');
+    youtubePlayer.classList.add('hidden');
+    closebtncontainer.classList.add('hidden');
+    openbtncontainer.classList.remove('hidden');
+  });
+
+  scoreTrackerBtn.addEventListener('click', () => {
+    window.location.replace('scoretracker.html');
+  });
+
+function LoadHighlight()
+{
+  db.collection('currentvideo').where('platform','==',0).get().then(
+    (snapshot) => {
+      snapshot.docs.forEach(
+        doc => {
+          db.collection('video').doc(doc.data().videoid).get().then(
+            (videoSnapshot) => {
+              var type = videoSnapshot.data().videotype;
+              if(type == 1)
+              {
+                twitchPlayer.src = `https://player.twitch.tv/?channel=${videoSnapshot.data().code}`;
+                twitchPlayer.classList.remove('hidden');
+              }
+              else if(type == 0)
+              {
+                youtubePlayer.src = `https://www.youtube.com/embed/${videoSnapshot.data().code}?autoplay=1`;
+                youtubePlayer.classList.remove('hidden');
+              }
+            }
+          )
+        }
+      );
+    }
+  );
+}

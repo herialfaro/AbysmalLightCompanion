@@ -4,6 +4,7 @@ const accountBungie = document.querySelector('#account-bungie-name');
 const accountCoins = document.querySelector('#account-coins');
 const accountPoints = document.querySelector('#account-clan-points');
 const accountRank = document.querySelector('#account-rank');
+const accountPreference = document.querySelector('#account-preference');
 
 const micCheckbox = document.querySelector('#mic-required');
 const bandCheckbox = document.querySelector('#publish-band');
@@ -52,7 +53,30 @@ accountTrigger.addEventListener('click', (e) => {
         accountBungie.textContent = `Nombre en Bungie.net: ${snapshot.data().displayname}`;
         accountCoins.textContent = `Tus Abysmal Coins: ${snapshot.data().abysmalcoins}`;
         accountPoints.textContent = `Tus puntos de clan: ${snapshot.data().clanpoints}`;
-        accountRank.textContent = `Tu rango de clan: ${ranksnapshot.data().name}`;
+        var preferencestring;
+        var rankname;
+        const preferenceinteger = snapshot.data().preference;
+        switch(preferenceinteger)
+        {
+          case 1:
+            preferencestring = 'Balanceado';
+            rankname = ranksnapshot.data().name;
+            break;
+          case 2:
+            preferencestring = 'PvE (jugador contra entorno)';
+            rankname = ranksnapshot.data().pvealt;
+            break;
+          case 3:
+            preferencestring = 'PvP (jugador contra jugador)';
+            rankname = ranksnapshot.data().pvpalt;
+            break;
+          default:
+            preferencestring = '';
+            rankname = ranksnapshot.data().name;
+            break;
+        }
+        accountRank.textContent = `Tu rango de clan: ${rankname}`;
+        accountPreference.textContent = `Tu preferencia de actividad: ${preferencestring}`;
       });
     }
   );
@@ -85,19 +109,8 @@ streamForm.addEventListener('submit', (e) => {
     loading2.classList.add('hidden');
     if(platform == 1)
     {
-      mixerPlayer.src = `https://mixer.com/embed/player/${code}?disableLowLatency=1`;
-      mixerPlayer.classList.remove('hidden');
-      twitchPlayer.src = `https://twitch.tv`;
-      twitchPlayer.classList.add('hidden');
-      youtubePlayer.src = `https://www.youtube.com`;
-      youtubePlayer.classList.add('hidden');
-    }
-    else if(platform == 2)
-    {
       twitchPlayer.src = `https://player.twitch.tv/?channel=${code}`;
       twitchPlayer.classList.remove('hidden');
-      mixerPlayer.src = `https://mixer.com`;
-      mixerPlayer.classList.add('hidden');
       youtubePlayer.src = `https://www.youtube.com`;
       youtubePlayer.classList.add('hidden');
     }
@@ -107,8 +120,6 @@ streamForm.addEventListener('submit', (e) => {
       twitchPlayer.classList.add('hidden');
       twitchPlayer.src = `https://twitch.tv`;
       youtubePlayer.classList.remove('hidden');
-      mixerPlayer.src = `https://mixer.com`;
-      mixerPlayer.classList.add('hidden');
     }
   })
   .catch(error => {streamError.classList.remove('hidden')
@@ -242,8 +253,7 @@ createFTButton.addEventListener('click', (e) => {
                 .then((response) => {
                   db.collection('user').doc(auth.currentUser.uid).get().then(
                     (snapshot) => {
-                      var content = `${classSelect.value} ${levelInput.value} busca escuadra para ${activityList.value} 
-                      Unirse: ${window.location.hostname}/fireteams.html?fireteamid=${response.data.reference}`;
+                      var content = `${classSelect.value} ${levelInput.value} busca escuadra para ${activityList.value} %0A Unirse: ${window.location.hostname}/fireteams.html?fireteamid=${response.data.reference}`;
                       const url = `https://openapi.band.us/v2.2/band/post/create?access_token=${bandusertoken}&band_key=${bandkey}&content=${content}&do_push=true`;
   
                       requestOptions = {

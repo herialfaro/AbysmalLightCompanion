@@ -28,6 +28,17 @@
       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
     </h4>
 
+    <!-- dailymessage modal -->
+    <div id="modal-daily-pr" class="modal">
+      <div class="modal-content center-align">
+        <h6 id = "modal-message-text-pr">Mensaje del día: </h6><br/>
+        <button id = "modal-message-close-pr">Cerrar</button>
+        <h6>Si no deseas recibir mensajes del día,
+          ve a Cuenta > Más configuraciones.
+        </h6><br/>
+      </div>
+    </div>
+
     <!-- postcreation modal -->
     <div id="modal-programpost" class="modal">
       <div class="modal-content center-align">
@@ -117,8 +128,7 @@
               <form class="stream-form">
                 <h6>Plataforma:</h6>
                 <select id = "stream-list" class="browser-default">
-                  <option value=1>Mixer</option>
-                  <option value=2>Twitch</option>
+                  <option value=1>Twitch</option>
                   <option value=0>Youtube</option>
               </select>
               <h6>Canal:</h6>
@@ -131,7 +141,6 @@
                 <input type="text" name="code">
                 <ul>
                   <h6>Ejemplos de códigos (resaltados en color azul):</h6>
-                  <img src="images/mixer.PNG">
                   <img src="images/twitch.PNG">
                   <img src="images/youtube.PNG">
                 </ul>
@@ -188,13 +197,15 @@
         <ul class="program_content hidden">
           <div class="container" style="z-index: 1; top: 0px; position: fixed; margin-top: 40px;">
             <h5 style ="right: 0px; background-color:white; width: 360vw;">Abysmal Highlights</h5>
+            <div class="close_highlight hidden">
+              <a style ="background-color:white;" id = "close_highlight_btn">Cerrar</a>
+            </div>
+            <div class="open_highlight hidden">
+              <a style ="background-color:white;" id = "open_highlight_btn">Abrir</a>
+            </div>
             <div>
               <iframe width = 360vw height = 160vw class = "video-youtube hidden"
               src="" frameborder="0" allow="autoplay; accelerometer; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-    
-              <iframe width = 360vw height = 160vw class = "video-mixer hidden" i18n-title="channel#ShareDialog:playerEmbedFrame|
-              Embed player Frame copied from share dialog" allowfullscreen="true" 
-              src=""></iframe>
     
               <iframe width = 360vw height = 160vw class = "video-twitch hidden" src="" frameborder="0" allowfullscreen="true" 
               scrolling="no"></iframe>

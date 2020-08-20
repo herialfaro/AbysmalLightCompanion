@@ -4,9 +4,8 @@ const programTitle = document.querySelector('#program_name');
 const programContent = document.querySelector('.program_content');
 const forbiddenContent = document.querySelector('.forbidden_content');
 
-const pjyoutubePlayer = document.querySelector('.video-youtube');
-const pjmixerPlayer = document.querySelector('.video-mixer');
-const pjtwitchPlayer = document.querySelector('.video-twitch');
+const pryoutubePlayer = document.querySelector('.video-youtube');
+const prtwitchPlayer = document.querySelector('.video-twitch');
 
 const postselector1 = document.querySelector('#post1');
 const postselector2 = document.querySelector('#post2');
@@ -55,6 +54,15 @@ const classSelect = document.querySelector('#class-list');
 const streamPlatform = document.querySelector('#stream-list');
 const streamChannel = document.querySelector('#channel-list');
 
+const prMessage = document.querySelector('#modal-message-text-pr');
+const prMessageButton = document.querySelector('#modal-message-close-pr');
+const prMessagemodal = document.querySelector('#modal-daily-pr');
+
+const prclosebtncontainer = document.querySelector('.close_highlight');
+const prclosebtn = document.querySelector('#close_highlight_btn');
+const propenbtncontainer = document.querySelector('.open_highlight');
+const propenbtn = document.querySelector('#open_highlight_btn');
+
 var post_array = [];
 var video_array = [];
 
@@ -71,42 +79,51 @@ document.addEventListener('DOMContentLoaded', function() {
 auth.onAuthStateChanged(user => {
     if (user)
     {
-        switch(programcode)
+      db.collection('user').doc(user.uid).get().then((snapshot) => {
+        if(snapshot.data().bungieid == '')
         {
-            case 1:
-                //CAMP CRUCIBLE
-            programTitle.textContent = "Camp Crucible";
-            db.collection('user').doc(user.uid).get().then(
-            (snapshot) => { 
-                if(snapshot.data().isincamp)
-                {
-                    LoadProgram(programcode);
-                    raidreportbutton.classList.add('hidden');
-                }
-                else
-                {
-                    forbiddenContent.classList.remove('hidden');
-                }
-            });
-                break;
-            case 2:
-                //RAID ACADEMY
-            programTitle.textContent = "Raid Academy";
-            db.collection('user').doc(user.uid).get().then(
-                (snapshot) => { 
-                    if(snapshot.data().isinacademy)
-                    {
-                        LoadProgram(programcode);
-                    }
-                    else
-                    {
-                        forbiddenContent.classList.remove('hidden');
-                    }
-                });
-                break;
-            default:
-                window.location.replace('404.html');
+          window.location.replace('index.html');
         }
+        else
+        {
+          switch(programcode)
+          {
+              case 1:
+                  //CAMP CRUCIBLE
+              programTitle.textContent = "Camp Crucible";
+              db.collection('user').doc(user.uid).get().then(
+              (snapshot) => { 
+                  if(snapshot.data().isincamp)
+                  {
+                      LoadProgram(programcode,snapshot);
+                      raidreportbutton.classList.add('hidden');
+                  }
+                  else
+                  {
+                      forbiddenContent.classList.remove('hidden');
+                  }
+              });
+                  break;
+              case 2:
+                  //RAID ACADEMY
+              programTitle.textContent = "Raid Academy";
+              db.collection('user').doc(user.uid).get().then(
+                  (snapshot) => { 
+                      if(snapshot.data().isinacademy)
+                      {
+                          LoadProgram(programcode,snapshot);
+                      }
+                      else
+                      {
+                          forbiddenContent.classList.remove('hidden');
+                      }
+                  });
+                  break;
+              default:
+                  window.location.replace('404.html');
+          }
+        }
+    });
     }
     else
     {
@@ -278,33 +295,22 @@ function PlayVideo(projecttag)
             if(doc.data().tag === projecttag)
             {
                 db.collection('video').doc(doc.data().videoid).get().then(videoSnapshot => {
+                  prclosebtncontainer.classList.remove('hidden');
+                  propenbtncontainer.classList.add('hidden');
                   var type = videoSnapshot.data().videotype;
                   if(type == 1)
                   {
-                    pjmixerPlayer.src = `https://mixer.com/embed/player/${videoSnapshot.data().code}?disableLowLatency=1`;
-                    pjmixerPlayer.classList.remove('hidden');
-                    pjtwitchPlayer.src = `https://twitch.tv`;
-                    pjtwitchPlayer.classList.add('hidden');
-                    pjyoutubePlayer.src = `https://www.youtube.com`;
-                    pjyoutubePlayer.classList.add('hidden');
-                  }
-                  else if(type == 2)
-                  {
-                    pjtwitchPlayer.src = `https://player.twitch.tv/?channel=${videoSnapshot.data().code}`;
-                    pjtwitchPlayer.classList.remove('hidden');
-                    pjmixerPlayer.src = `https://mixer.com`;
-                    pjmixerPlayer.classList.add('hidden');
-                    pjyoutubePlayer.src = `https://www.youtube.com`;
-                    pjyoutubePlayer.classList.add('hidden');
+                    prtwitchPlayer.src = `https://player.twitch.tv/?channel=${videoSnapshot.data().code}`;
+                    prtwitchPlayer.classList.remove('hidden');
+                    pryoutubePlayer.src = `https://www.youtube.com`;
+                    pryoutubePlayer.classList.add('hidden');
                   }
                   else if(type == 0)
                   {
-                    pjyoutubePlayer.src = `https://www.youtube.com/embed/${videoSnapshot.data().code}?autoplay=1`;
-                    pjyoutubePlayer.classList.remove('hidden');
-                    pjmixerPlayer.src = `https://mixer.com`;
-                    pjmixerPlayer.classList.add('hidden');
-                    pjtwitchPlayer.src = `https://twitch.tv`;
-                    pjtwitchPlayer.classList.add('hidden');
+                    pryoutubePlayer.src = `https://www.youtube.com/embed/${videoSnapshot.data().code}?autoplay=1`;
+                    pryoutubePlayer.classList.remove('hidden');
+                    prtwitchPlayer.src = `https://twitch.tv`;
+                    prtwitchPlayer.classList.add('hidden');
                   }
                 });
             }
@@ -346,39 +352,38 @@ function OpenPost(index)
     }
 }
 
-function LoadProgram(code)
+function LoadProgram(code,snapshot)
 {
     programContent.classList.remove('hidden');
 
+    //loads daily message
+    const checkDailyItems = firebase.functions().httpsCallable('checkDailyItems');
+    checkDailyItems()
+    .then(response => {
+      if(response.data.reference)
+      {
+        const messagestring = `Mensaje diario: ${response.data.message}
+        Has conseguido ${response.data.coins} Abysmal Coin(s).`;
+        prMessage.textContent = messagestring;
+        M.Modal.getInstance(prMessagemodal).open();
+      }
+    })
+    .catch(error => {
+      console.log(error.message);
+  });
+
+  //checks if user sees stream
+  var displayStream = snapshot.data().displayhighlight;
+  if(displayStream)
+  {
+    prclosebtncontainer.classList.remove('hidden');
     //loads highlight
-    db.collection('currentvideo').where('platform','==',0).get().then(
-        (snapshot) => {
-          snapshot.docs.forEach(
-            doc => {
-              db.collection('video').doc(doc.data().videoid).get().then(
-                (videoSnapshot) => {
-                  var type = videoSnapshot.data().videotype;
-                  if(type == 1)
-                  {
-                    pjmixerPlayer.src = `https://mixer.com/embed/player/${videoSnapshot.data().code}?disableLowLatency=1`;
-                    pjmixerPlayer.classList.remove('hidden');
-                  }
-                  else if(type == 2)
-                  {
-                    pjtwitchPlayer.src = `https://player.twitch.tv/?channel=${videoSnapshot.data().code}`;
-                    pjtwitchPlayer.classList.remove('hidden');
-                  }
-                  else if(type == 0)
-                  {
-                    pjyoutubePlayer.src = `https://www.youtube.com/embed/${videoSnapshot.data().code}?autoplay=1`;
-                    pjyoutubePlayer.classList.remove('hidden');
-                  }
-                }
-              )
-            }
-          );
-        }
-      );
+    LoadPrHighlight();
+  }
+  else
+  {
+    propenbtncontainer.classList.remove('hidden');
+  }
 
       db.collection('mentorpost').where('programcode','==',code).orderBy('dateadded').get().then((snapshot) => {
       var temp_array = [];
@@ -931,15 +936,11 @@ if(levelInput.value > 1100 || levelInput.value < 750)
                       {
                           case 1:
                             content = `${classSelect.value} ${levelInput.value} busca escuadra para ${activityList.value}
-                            como actividad del Campamento Crisol.
-                             Ver publicación en el campamento: ${window.location.hostname}/programs.html?programcode=${programcode}
-                             Unirse: ${window.location.hostname}/fireteams.html?fireteamid=${response.data.reference}`;
+                            como actividad del Campamento Crisol. %0A Ver publicación en el campamento: ${window.location.hostname}/programs.html?programcode=${programcode} %0A Unirse: ${window.location.hostname}/fireteams.html?fireteamid=${response.data.reference}`;
                           break;
                           case 2:
                             content = `${classSelect.value} ${levelInput.value} busca escuadra para ${activityList.value}
-                            como actividad de la Academia de Incursiones.
-                             Ver publicación en la academia: ${window.location.hostname}/programs.html?programcode=${programcode}
-                             Unirse: ${window.location.hostname}/fireteams.html?fireteamid=${response.data.reference}`;
+                            como actividad de la Academia de Incursiones. %0A Ver publicación en la academia: ${window.location.hostname}/programs.html?programcode=${programcode} %0A Unirse: ${window.location.hostname}/fireteams.html?fireteamid=${response.data.reference}`;
                           break;
                       }
                       const url = `https://openapi.band.us/v2.2/band/post/create?access_token=${bandusertoken}&band_key=${bandkey}&content=${content}&do_push=true`;
@@ -1235,4 +1236,53 @@ if(levelInput.value > 1100 || levelInput.value < 750)
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         break;
     }
+}
+
+prMessageButton.addEventListener('click', (e) => {
+  e.stopPropagation();
+  M.Modal.getInstance(prMessagemodal).close();
+  });
+
+  propenbtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    LoadPrHighlight();
+    prclosebtncontainer.classList.remove('hidden');
+    propenbtncontainer.classList.add('hidden');
+  });
+
+  prclosebtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    prtwitchPlayer.src = `https://twitch.tv`;
+    pryoutubePlayer.src = `https://www.youtube.com`;
+    prtwitchPlayer.classList.add('hidden');
+    pryoutubePlayer.classList.add('hidden');
+    prclosebtncontainer.classList.add('hidden');
+    propenbtncontainer.classList.remove('hidden');
+  });
+
+function LoadPrHighlight()
+{
+  db.collection('currentvideo').where('platform','==',0).get().then(
+    (snapshot) => {
+      snapshot.docs.forEach(
+        doc => {
+          db.collection('video').doc(doc.data().videoid).get().then(
+            (videoSnapshot) => {
+              var type = videoSnapshot.data().videotype;
+              if(type == 1)
+              {
+                prtwitchPlayer.src = `https://player.twitch.tv/?channel=${videoSnapshot.data().code}`;
+                prtwitchPlayer.classList.remove('hidden');
+              }
+              else if(type == 0)
+              {
+                pryoutubePlayer.src = `https://www.youtube.com/embed/${videoSnapshot.data().code}?autoplay=1`;
+                pryoutubePlayer.classList.remove('hidden');
+              }
+            }
+          )
+        }
+      );
+    }
+  );
 }

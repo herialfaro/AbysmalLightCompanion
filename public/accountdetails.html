@@ -37,6 +37,23 @@
                 <h5 id = "account-coins">Tus Abysmal Coins: </h5><br/>
                 <h5 id = "account-clan-points">Tus puntos de clan: </h5><br/>
                 <h5 id = "account-rank">Tu rango de clan: </h5><br/>
+                <h5 id = "account-preference">Tu preferencia de actividad: </h5><br/>
+                <h6>Cambiar tu preferencia</h6>
+                <select id = "preference-list" class="browser-default">
+                  <option value = 1>Balanceado</option>
+                  <option value = 2>PvE (Jugador contra entorno)</option>
+                  <option value = 3>PvP (Jugador contra jugador)</option>
+              </select>
+                <button class = "preference-save">Guardar preferencia</button>
+                <h6 class = "preference-loading hidden">Cargando...</h6>
+                <h6 class = "preference-success hidden">Preferencia actualizada. Puedes refrescar la página
+                  o regresar al inicio.
+                </h6>
+                <h6 class = "preference-failure hidden">Hubo un error, inténtalo de nuevo más tarde.</h6>
+                <h6>&nbsp;</h6>
+                <button class = "hide-highlight hidden">Ocultar directo de Highlights por defecto</button>
+                <button class = "show-highlight hidden">Mostrar directo de Highlights por defecto</button>
+                <h6>&nbsp;</h6>
                 <button class = "daily-messages-true hidden">Dejar de recibir mensajes diarios</button>
                 <button class = "daily-messages-false hidden">Recibir mensajes diarios</button>
                 <!-- Update in a future version-->

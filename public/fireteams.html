@@ -22,12 +22,23 @@
   </style>
 
 <body class="white">
-    <h5>Abysmal Light Fireteams</h5>
+    <h4>Fireteams</h4>
     <h4>
       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
     </h4>
+
+    <!-- dailymessage modal -->
+    <div id="modal-daily-ft" class="modal">
+      <div class="modal-content center-align">
+        <h6 id = "modal-message-text-ft">Mensaje del día: </h6><br/>
+        <button id = "modal-message-close-ft">Cerrar</button>
+        <h6>Si no deseas recibir mensajes del día,
+          ve a Cuenta > Más configuraciones.
+        </h6><br/>
+      </div>
+    </div>
 
     <section class="content">
       <header>
@@ -37,6 +48,12 @@
 
       <div class="container" style="z-index: 1; top: 0px; position: fixed; margin-top: 40px;">
         <h5 style ="right: 0px; background-color:white; width: 360vw;">Abysmal Highlights</h5>
+        <div class="close_highlight hidden">
+          <a style ="background-color:white;" id = "close_highlight_btn">Cerrar</a>
+        </div>
+        <div class="open_highlight hidden">
+          <a style ="background-color:white;" id = "open_highlight_btn">Abrir</a>
+        </div>
         <div>
           <iframe width = 360vw height = 160vw class = "video-youtube hidden"
           src="" frameborder="0" allow="autoplay; accelerometer; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
@@ -94,8 +111,8 @@
             <button class="leave-fireteam hidden">Abandonar escuadra</button>
             <h6 class="camp-fireteam hidden">Lo sentimos, solo se pueden unir miembros del Campamento Crisol a esta escuadra.</h6>
             <h6 class="academy-fireteam hidden">Lo sentimos, solo se pueden unir miembros de la Academia de Incursiones a esta escuadra.</h6>
-            <h6 class="cannot-join hidden">No puedes unirte a la escuadra, es posible que ya formes parte de ella, que esté llena
-              o que no hayas introducido un nivel válido (750 - 1100).</h6>
+            <h6 class="cannot-join hidden">Hubo un error al intentar unirte a la escuadra, es posible que ya formes parte de ella, que esté llena
+              o que no hayas introducido un nivel válido (750 - 1100). También se pudo deber a un error en el servidor, por favor, inténtalo más tarde.</h6>
             <h6 class="cannot-delete hidden">No se pudo borrar la escuadra, es posible que haya ocurrido un error o no estés autorizado(a).</h6>
             <h6 class="cannot-leave hidden">No puedes abandonar esta escuadra porque no formas parte de ella.</h6>
             <h6 class="loading hidden">Cargando...</h6>

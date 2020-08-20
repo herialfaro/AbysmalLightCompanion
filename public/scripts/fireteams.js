@@ -21,41 +21,65 @@ const ftyoutubePlayer = document.querySelector('.video-youtube');
 const ftmixerPlayer = document.querySelector('.video-mixer');
 const fttwitchPlayer = document.querySelector('.video-twitch');
 
+const ftMessage = document.querySelector('#modal-message-text-ft');
+const ftMessageButton = document.querySelector('#modal-message-close-ft');
+const ftMessagemodal = document.querySelector('#modal-daily-ft');
+
+const ftclosebtncontainer = document.querySelector('.close_highlight');
+const ftclosebtn = document.querySelector('#close_highlight_btn');
+const ftopenbtncontainer = document.querySelector('.open_highlight');
+const ftopenbtn = document.querySelector('#open_highlight_btn');
+
+document.addEventListener('DOMContentLoaded', function() {
+
+    var modals = document.querySelectorAll('.modal');
+    M.Modal.init(modals);
+  
+    var items = document.querySelectorAll('.collapsible');
+    M.Collapsible.init(items);
+  
+});
+
 auth.onAuthStateChanged(user => {
     if (user)
     {
-        if(fireteamid)
-        {
-            //loads highlight
-    db.collection('currentvideo').where('platform','==',0).get().then(
-        (snapshot) => {
-          snapshot.docs.forEach(
-            doc => {
-              db.collection('video').doc(doc.data().videoid).get().then(
-                (videoSnapshot) => {
-                  var type = videoSnapshot.data().videotype;
-                  if(type == 1)
-                  {
-                    ftmixerPlayer.src = `https://mixer.com/embed/player/${videoSnapshot.data().code}?disableLowLatency=1`;
-                    ftmixerPlayer.classList.remove('hidden');
-                  }
-                  else if(type == 2)
-                  {
-                    fttwitchPlayer.src = `https://player.twitch.tv/?channel=${videoSnapshot.data().code}`;
-                    fttwitchPlayer.classList.remove('hidden');
-                  }
-                  else if(type == 0)
-                  {
-                    ftyoutubePlayer.src = `https://www.youtube.com/embed/${videoSnapshot.data().code}?autoplay=1`;
-                    ftyoutubePlayer.classList.remove('hidden');
-                  }
-                }
-              )
+        db.collection('user').doc(user.uid).get().then((snapshot) => {
+            if(snapshot.data().bungieid == '')
+            {
+                window.location.replace('index.html');
             }
-          );
-        }
-      );
+            else
+            {
+                if(fireteamid)
+        {
+            //loads daily message
+          const checkDailyItems = firebase.functions().httpsCallable('checkDailyItems');
+          checkDailyItems()
+          .then(response => {
+            if(response.data.reference)
+            {
+              const messagestring = `Mensaje diario: ${response.data.message}
+              Has conseguido ${response.data.coins} Abysmal Coin(s).`;
+              ftMessage.textContent = messagestring;
+              M.Modal.getInstance(ftMessagemodal).open();
+            }
+          })
+          .catch(error => {
+            console.log(error.message);
+        });
 
+            //checks if user sees stream
+  var displayStream = snapshot.data().displayhighlight;
+  if(displayStream)
+  {
+    ftclosebtncontainer.classList.remove('hidden');
+    //loads highlight
+    LoadFtHighlight();
+  }
+  else
+  {
+    ftopenbtncontainer.classList.remove('hidden');
+  }
 
             var fireteamdata;
             var players;
@@ -166,6 +190,8 @@ auth.onAuthStateChanged(user => {
         {
             window.location.replace('404.html');
         }
+            }
+        });
     }
     else
     {
@@ -318,21 +344,32 @@ joinButton.addEventListener('click', (e) => {
                                 fireteamfull: isftfull
                             }
                             const updateIsFullFireteam  = firebase.functions().httpsCallable('updateIsFullFireteam');
-                            updateIsFullFireteam(update_fireteam);
-                            
-                            var new_player = {
-                                uname: userSnapshot.data().displayname,
-                                uclass: classList.value,
-                                ftid: fireteamid,
-                                ulevel: levelSelector.value
-                              }
-                            const joinFireteam  = firebase.functions().httpsCallable('joinFireteam');
-                            joinFireteam(new_player)
-                            .then(() => {
-                                window.location.reload(true)
-                            }).catch(error => {joinError.classList.remove('hidden')
+                            updateIsFullFireteam(update_fireteam).then(() => {
+                                var new_player = {
+                                    uname: userSnapshot.data().displayname,
+                                    uclass: classList.value,
+                                    ftid: fireteamid,
+                                    ulevel: levelSelector.value
+                                  }
+                                const joinFireteam  = firebase.functions().httpsCallable('joinFireteam');
+                                joinFireteam(new_player)
+                                .then(() => {
+                                    window.location.reload(true)
+                                }).catch(error => {joinError.classList.remove('hidden')
+                                loading.classList.add('hidden')
+                                joinButton.classList.remove('hidden')});
+                            }).catch(error => {
+                            joinError.classList.remove('hidden')
                             loading.classList.add('hidden')
-                            joinButton.classList.remove('hidden')});
+                            joinButton.classList.remove('hidden')
+
+                            var update_fireteam = {
+                                ftid: fireteamid,
+                                fireteamfull: false
+                            }
+                            const updateIsFullFireteam  = firebase.functions().httpsCallable('updateIsFullFireteam');
+                            updateIsFullFireteam(update_fireteam);
+                            });
                         }
                     }
                     else
@@ -402,3 +439,57 @@ signOut.addEventListener('click', () => {
         window.location.replace('index.html');
       });
   });
+
+  ftMessageButton.addEventListener('click', (e) => {
+    e.stopPropagation();
+    M.Modal.getInstance(ftMessagemodal).close();
+    });
+
+    ftopenbtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        LoadFtHighlight();
+        ftclosebtncontainer.classList.remove('hidden');
+        ftopenbtncontainer.classList.add('hidden');
+      });
+    
+      ftclosebtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        fttwitchPlayer.src = `https://twitch.tv`;
+        ftyoutubePlayer.src = `https://www.youtube.com`;
+        fttwitchPlayer.classList.add('hidden');
+        ftyoutubePlayer.classList.add('hidden');
+        ftclosebtncontainer.classList.add('hidden');
+        ftopenbtncontainer.classList.remove('hidden');
+      });
+
+function LoadFtHighlight()
+{
+    db.collection('currentvideo').where('platform','==',0).get().then(
+        (snapshot) => {
+          snapshot.docs.forEach(
+            doc => {
+              db.collection('video').doc(doc.data().videoid).get().then(
+                (videoSnapshot) => {
+                  var type = videoSnapshot.data().videotype;
+                  if(type == 1)
+                  {
+                    ftmixerPlayer.src = `https://mixer.com/embed/player/${videoSnapshot.data().code}?disableLowLatency=1`;
+                    ftmixerPlayer.classList.remove('hidden');
+                  }
+                  else if(type == 2)
+                  {
+                    fttwitchPlayer.src = `https://player.twitch.tv/?channel=${videoSnapshot.data().code}`;
+                    fttwitchPlayer.classList.remove('hidden');
+                  }
+                  else if(type == 0)
+                  {
+                    ftyoutubePlayer.src = `https://www.youtube.com/embed/${videoSnapshot.data().code}?autoplay=1`;
+                    ftyoutubePlayer.classList.remove('hidden');
+                  }
+                }
+              )
+            }
+          );
+        }
+      );
+}
